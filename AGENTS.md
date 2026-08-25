@@ -43,3 +43,7 @@ Large features go through the spec skills in `.agents/skills/` (tracked by `skil
 ## Notes
 
 - `CLAUDE.md` only imports this file (`@AGENTS.md`) — add guidance here, don't duplicate it there.
+
+## Reglas de código.
+
+- Usa código limpio; nombre, funciones y variables en inglés.
