@@ -1,6 +1,6 @@
 # SPEC 01 — Feed como home
 
-> **Estado:** Borrador
+> **Estado:** Aprobado
 > **Depende de:** Ninguna
 > **Fecha:** 2026-08-25
 > **Objetivo:** Implementar la pantalla de Feed como página de inicio (`/`) con datos mock en `data/mock/`, visualmente idéntica al mockup `references/pantallas/feed.dc.html` en desktop y con navegación responsive (drawer), sin autenticación ni base de datos.
@@ -42,19 +42,29 @@ export type PostType = "logro" | "actividad" | "anuncio";
 export interface Post {
   id: string;
   type: PostType;
-  author: string;       // "Mateo" | "Anuncio general"
-  initials?: string;    // "M" (solo posts de niño; el anuncio usa ícono)
-  time: string;         // "14:20"
-  audience: string;     // "familia de Mateo" | "toda la sala"
+  author: string; // "Mateo" | "Anuncio general"
+  initials?: string; // "M" (solo posts de niño; el anuncio usa ícono)
+  time: string; // "14:20"
+  audience: string; // "familia de Mateo" | "toda la sala"
   body: string;
-  photo?: string;       // leyenda del placeholder; ausente = sin foto
+  photo?: string; // leyenda del placeholder; ausente = sin foto
   likes: number;
   comments: number;
 }
 
-export const user = { name: "Caro Giménez", role: "Maestra · Soles", initials: "C" };
-export const classroom = { name: "Sala Soles", childrenCount: 12, date: "martes 17 jun" };
-export const posts: Post[] = [/* las 3 del mockup */];
+export const user = {
+  name: "Caro Giménez",
+  role: "Maestra · Soles",
+  initials: "C",
+};
+export const classroom = {
+  name: "Sala Soles",
+  childrenCount: 12,
+  date: "martes 17 jun",
+};
+export const posts: Post[] = [
+  /* las 3 del mockup */
+];
 ```
 
 Los valores string ("Mateo", "familia de Mateo", "martes 17 jun", etc.) son copy de UI y se mantienen en español; solo los identificadores están en inglés. Colores de badge/avatar se derivan de `type` dentro de `PostCard` (no van en los datos). La fecha del saludo es texto mock fijo ("martes 17 jun"), no `new Date()`.
@@ -130,11 +140,11 @@ Criterio de las subcarpetas: `shared/` = elementos comunes a varias pantallas, `
 
 ## Riesgos
 
-| Riesgo | Mitigación |
-| --- | --- |
-| Diferencias visuales sutiles al traducir estilos inline a Tailwind | Usar valores exactos del mockup con arbitrary values; comparación visual como criterio de aceptación |
-| El route group `(dashboard)` rompe `/` si `page.tsx` se mueve en otro paso | El paso 3 mueve la página y verifica la ruta en el mismo commit |
-| No existe mockup móvil | El drawer reutiliza el mismo componente de sidebar; solo cambia el contenedor |
+| Riesgo                                                                     | Mitigación                                                                                           |
+| -------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| Diferencias visuales sutiles al traducir estilos inline a Tailwind         | Usar valores exactos del mockup con arbitrary values; comparación visual como criterio de aceptación |
+| El route group `(dashboard)` rompe `/` si `page.tsx` se mueve en otro paso | El paso 3 mueve la página y verifica la ruta en el mismo commit                                      |
+| No existe mockup móvil                                                     | El drawer reutiliza el mismo componente de sidebar; solo cambia el contenedor                        |
 
 ## Lo que **no** está en este spec
 
