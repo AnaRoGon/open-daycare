@@ -1,6 +1,6 @@
 # SPEC 01 — Feed como home
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** Ninguna
 > **Fecha:** 2026-08-25
 > **Objetivo:** Implementar la pantalla de Feed como página de inicio (`/`) con datos mock en `data/mock/`, visualmente idéntica al mockup `references/pantallas/feed.dc.html` en desktop y con navegación responsive (drawer), sin autenticación ni base de datos.
@@ -105,19 +105,19 @@ Criterio de las subcarpetas: `shared/` = elementos comunes a varias pantallas, `
 
 ## Criterios de aceptación
 
-- [ ] `npm run lint` y `npm run build` pasan sin errores.
-- [ ] En `≥1024px`, `/` muestra la sidebar fija de 248px y columna central de 760px, idéntica al mockup.
-- [ ] En `<1024px`, la sidebar se oculta, hay barra superior con hamburguesa, y el drawer se abre/cierra (clic en overlay y Esc cierran).
-- [ ] A 375px no hay scroll horizontal y el contenido es legible.
-- [ ] El saludo muestra exactamente "GUARDERÍA · SALA SOLES", "Buenas, Caro" y "12 niños · martes 17 jun".
-- [ ] Se renderizan exactamente 3 publicaciones con badges LOGRO (verde), ACTIVIDAD (celeste) y ANUNCIO (azul).
-- [ ] La publicación de actividad muestra el placeholder punteado "Foto · pintando con témperas".
-- [ ] Ningún elemento navega fuera de `/` (no hay 404 al interactuar).
-- [ ] Los títulos usan Fredoka y el cuerpo Nunito.
-- [ ] Con el esquema oscuro del SO activo, la página sigue mostrando la paleta cálida (sin dark mode).
-- [ ] Los estilos usan exclusivamente clases Tailwind (sin CSS ad-hoc por componente).
-- [ ] Todo el código interno (tipos, variables, funciones, props, nombres de archivo) está en inglés; los strings visibles (labels, textos de las publicaciones, nombres) están en español.
-- [ ] La comparación visual contra el mockup coincide en espaciados, radios, colores y tipografías.
+- [x] `npm run lint` y `npm run build` pasan sin errores.
+- [x] En `≥1024px`, `/` muestra la sidebar fija de 248px y columna central de 760px, idéntica al mockup.
+- [x] En `<1024px`, la sidebar se oculta, hay barra superior con hamburguesa, y el drawer se abre/cierra (clic en overlay y Esc cierran).
+- [x] A 375px no hay scroll horizontal y el contenido es legible.
+- [x] El saludo muestra exactamente "GUARDERÍA · SALA SOLES", "Buenas, Caro" y "12 niños · martes 17 jun".
+- [x] Se renderizan exactamente 3 publicaciones con badges LOGRO (verde), ACTIVIDAD (celeste) y ANUNCIO (azul).
+- [x] La publicación de actividad muestra el placeholder punteado "Foto · pintando con témperas".
+- [x] Ningún elemento navega fuera de `/` (no hay 404 al interactuar).
+- [x] Los títulos usan Fredoka y el cuerpo Nunito.
+- [x] Con el esquema oscuro del SO activo, la página sigue mostrando la paleta cálida (sin dark mode).
+- [x] Los estilos usan exclusivamente clases Tailwind (sin CSS ad-hoc por componente).
+- [x] Todo el código interno (tipos, variables, funciones, props, nombres de archivo) está en inglés; los strings visibles (labels, textos de las publicaciones, nombres) están en español.
+- [x] La comparación visual contra el mockup coincide en espaciados, radios, colores y tipografías.
 
 ## Decisiones
 
