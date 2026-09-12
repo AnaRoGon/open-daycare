@@ -13,7 +13,7 @@ export default function KidsPage() {
 
   return (
     <div className="mx-auto w-full max-w-[880px] px-5 pb-20 pt-[34px] lg:px-10">
-      <div className="mb-[22px] flex items-end justify-between gap-4">
+      <div className="mb-[22px] flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <div className="mb-1 text-[12.5px] font-extrabold tracking-[0.8px] text-[#D9583C]">
             GESTIÓN

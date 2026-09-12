@@ -35,30 +35,32 @@ export default async function KidsProfile({ params }: KidsProfileProps) {
         Volver a Niños
       </Link>
 
-      <div className="flex flex-wrap items-start gap-[26px]">
+      <div className="flex flex-col gap-[26px] lg:flex-row lg:items-start">
         {/* Left column */}
-        <div className="flex min-w-[300px] flex-1 flex-col gap-[18px]">
-          <div className="flex items-center gap-[18px]">
-            <div
-              className="flex h-[84px] w-[84px] flex-none items-center justify-center rounded-full font-display text-[34px] font-semibold"
-              style={{
-                backgroundColor: child.avatarColor,
-                color: child.avatarTextColor,
-              }}
-            >
-              {child.initials}
-            </div>
-            <div className="flex-1">
-              <h1 className="font-display m-0 text-[28px] font-semibold text-cocoa">
-                {child.name}
-              </h1>
-              <p className="m-0 mt-[3px] text-[15px] text-taupe">
-                {child.age} &middot; Sala {child.classroom}
-              </p>
+        <div className="flex w-full flex-col gap-[18px] lg:min-w-[300px] lg:flex-1">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:gap-[18px]">
+            <div className="flex items-center gap-[18px]">
+              <div
+                className="flex h-[84px] w-[84px] flex-none items-center justify-center rounded-full font-display text-[34px] font-semibold"
+                style={{
+                  backgroundColor: child.avatarColor,
+                  color: child.avatarTextColor,
+                }}
+              >
+                {child.initials}
+              </div>
+              <div className="flex-1">
+                <h1 className="font-display m-0 text-[28px] font-semibold text-cocoa">
+                  {child.name}
+                </h1>
+                <p className="m-0 mt-[3px] text-[15px] text-taupe">
+                  {child.age} &middot; Sala {child.classroom}
+                </p>
+              </div>
             </div>
             <button
               type="button"
-              className="rounded-[12px] border-[1.5px] border-linen bg-card px-4 py-[9px] font-semibold text-[14px] text-mocha"
+              className="self-start rounded-[12px] border-[1.5px] border-linen bg-card px-4 py-[9px] font-semibold text-[14px] text-mocha"
             >
               Editar
             </button>
@@ -117,7 +119,7 @@ export default async function KidsProfile({ params }: KidsProfileProps) {
         </div>
 
         {/* Right column */}
-        <div className="flex w-[300px] flex-none flex-col gap-[14px]">
+        <div className="flex w-full flex-col gap-[14px] lg:w-[300px] lg:flex-none">
           <button
             type="button"
             className="flex w-full items-center justify-center gap-[9px] rounded-[14px] bg-[#3F362E] px-[13px] py-[13px] font-extrabold text-[15px] text-white"
