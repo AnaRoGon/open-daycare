@@ -129,25 +129,25 @@ export const children: Child[] = [
 
 ## Acceptance Criteria
 
-- [ ] `npm run lint` passes with no errors
-- [ ] `npm run build` passes with no errors
-- [ ] `data/mock/kids.ts` exports `AllergyType`, `AvatarColor`, `ParentStatus` enums and `Child`, `LinkedParent` interfaces
-- [ ] Mock data contains exactly 8 children with correct names, ages, classrooms, allergy types, avatar colors, and linked parents
-- [ ] `/kids` page renders at desktop viewport (1440px) matching `references/pantallas/ninos.dc.html`: header with "GESTIÓN" + "Niños" + "Agregar niño", search bar, "SALA SOLES" section with child counter, 2-column grid of kid cards
-- [ ] `/kids` page renders at mobile viewport (375px) with single-column card layout, search bar, and header stacked appropriately
-- [ ] Search input "Buscar niño..." filters the kid list by name in real-time (frontend, case-insensitive)
-- [ ] Classroom counter updates dynamically when search filters results (e.g., "8 niños" → "3 niños")
-- [ ] Each kid card shows: colored avatar with initial, full name, age + parent count, and allergy badge (MANÍ/LACTOSA) or chevron where applicable
-- [ ] Kid cards have hover effect with `translateY(-2px)` and border color change
-- [ ] `/kids/mateo-fernandez` (or equivalent id) renders at desktop viewport matching `references/pantallas/perfil-nino.dc.html`: two-column layout with profile info on left, action buttons + linked parents on right
-- [ ] `/kids/mateo-fernandez` renders at mobile viewport (375px) with stacked single-column layout
-- [ ] Profile page shows: large avatar (84px), name (Fredoka 28px), age/sala line, allergy alert card with icon + notes, data table (fecha de nacimiento, sala, ingreso), "Editar" button
-- [ ] Profile right sidebar: "Resumen del día" button, "PADRES VINCULADOS" section with parent rows showing avatar/name/role/status badge (ACTIVA green, PENDIENTE yellow), "Vincular otro padre" link
-- [ ] "Volver a Niños" link navigates to `/kids`
-- [ ] All UI copy is in Spanish
-- [ ] All component code uses English naming (files, variables, types)
-- [ ] Existing `NavShell` and `Sidebar` components are reused via `(dashboard)` route group
-- [ ] No new CSS files created — all styling via Tailwind classes in TSX
+- [x] `npm run lint` passes with no errors
+- [x] `npm run build` passes with no errors
+- [x] `data/mock/kids.ts` exports `AllergyType`, `AvatarColor`, `ParentStatus` enums and `Child`, `LinkedParent` interfaces
+- [x] Mock data contains exactly 8 children with correct names, ages, classrooms, allergy types, avatar colors, and linked parents
+- [x] `/kids` page renders at desktop viewport (1440px) matching `references/pantallas/ninos.dc.html`: header with "GESTIÓN" + "Niños" + "Agregar niño", search bar, "SALA SOLES" section with child counter, 2-column grid of kid cards
+- [x] `/kids` page renders at mobile viewport (375px) with single-column card layout, search bar, and header stacked appropriately
+- [x] Search input "Buscar niño..." filters the kid list by name in real-time (frontend, case-insensitive)
+- [x] Classroom counter updates dynamically when search filters results (e.g., "8 niños" → "1 niño")
+- [x] Each kid card shows: colored avatar with initial, full name, age + parent count, and allergy badge (MANÍ/LACTOSA) or chevron where applicable
+- [x] Kid cards have hover effect with `translateY(-2px)` and border color change
+- [x] `/kids/mateo-fernandez` (or equivalent id) renders at desktop viewport matching `references/pantallas/perfil-nino.dc.html`: two-column layout with profile info on left, action buttons + linked parents on right
+- [x] `/kids/mateo-fernandez` renders at mobile viewport (375px) with stacked single-column layout
+- [x] Profile page shows: large avatar (84px), name (Fredoka 28px), age/sala line, allergy alert card with icon + notes, data table (fecha de nacimiento, sala, ingreso), "Editar" button
+- [x] Profile right sidebar: "Resumen del día" button, "PADRES VINCULADOS" section with parent rows showing avatar/name/role/status badge (ACTIVA green, PENDIENTE yellow), "Vincular otro padre" link
+- [x] "Volver a Niños" link navigates to `/kids`
+- [x] All UI copy is in Spanish
+- [x] All component code uses English naming (files, variables, types)
+- [x] Existing `NavShell` and `Sidebar` components are reused via `(dashboard)` route group
+- [x] No new CSS files created — all styling via Tailwind classes in TSX
 
 ---
 
@@ -165,3 +165,25 @@ export const children: Child[] = [
 
 - **Mock data drift:** Hardcoded mock data will diverge from real data once backend is added. This is acceptable for a visual-only spec; data layer will be addressed in a future spec.
 - **Search performance:** Frontend filtering is fine for 8 children but won't scale. Mitigation: this is intentional for the visual-only phase; server-side search will replace it in a future spec.
+
+---
+
+## Verification Results
+
+**Date:** Sat Sep 12 2026  
+**Verifier:** @spec-verifier  
+**Result:** ALL 19 CRITERIA PASSED
+
+### Build & Lint
+- `npm run lint` — passed
+- `npm run build` — passed (TypeScript, static generation, all routes compiled)
+
+### Visual Verification (Playwright screenshots in `.playwright-mcp/`)
+- `kids-desktop.png` — `/kids` at 1440px: header, search, 2-column grid, 8 cards with avatars/allergy badges
+- `kids-mobile.png` — `/kids` at 375px: single-column stacked layout, search bar, header
+- `profile-mateo-desktop.png` — `/kids/mateo-fernandez` at 1440px: two-column layout, avatar, allergy card, data table, linked parents with status badges
+- `profile-mateo-mobile.png` — `/kids/mateo-fernandez` at 375px: single-column stacked layout
+
+### Functional Tests
+- Search "mateo" → filtered from "8 niños" to "1 niño", only Mateo Fernández shown
+- "Volver a Niños" link → successfully navigated from `/kids/mateo-fernandez` back to `/kids`
