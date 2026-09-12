@@ -173,7 +173,7 @@ export default async function KidsProfile({ params }: KidsProfileProps) {
                 </div>
               ))}
               <Link
-                href="/kids/[id]/link-parent"
+                href={`/kids/${child.id}/link-parent`}
                 className="flex items-center gap-3 pt-2"
               >
                 <span className="flex h-10 w-10 flex-none items-center justify-center rounded-full border-[1.5px] border-dashed border-[#D8CBBA] text-[#B0A290]">
