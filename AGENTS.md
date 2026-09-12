@@ -34,11 +34,29 @@ Large features go through the spec skills in `.agents/skills/` (tracked by `skil
 
 - `/spec <short description>` — produces `specs/NN-slug.md` in Draft state (the user marks it Approved). No code is written here.
 - `/spec-impl NN-slug` — implements an Approved spec on a `spec-NN-slug` branch.
+- `@spec-verifier @specs/NN-slug.md` — verifies an implemented spec against its acceptance criteria. Runs `npm run lint` + `npm run build`, checks visual criteria with Playwright screenshots in `.playwright-mcp/`, and marks each criterion as `[x]` in the spec file when it passes.
 
 ## MCPs
 
 - Playwright: Screenshots y cualquier cosa relacionada a Playwright tienen que estar en la carpeta `.playwright-mcp` (gitignored).
 - Context7: Usaremos este MCP para consultar la documentación actualizada del framework.
+
+## Spec verifier (`@spec-verifier`)
+
+Agente que verifica un spec implementado contra sus criterios de aceptación. Se invoca como `@spec-verifier @specs/NN-slug.md`.
+
+**Flujo:**
+
+1. Lee el spec y extrae los criterios de aceptación (checklist `[ ]`).
+2. Corre `npm run lint` + `npm run build` — si fallan, los criterios no pasan.
+3. Para cada criterio visual/funcional:
+   - Usa Playwright para navegar a la ruta correspondiente.
+   - Toma screenshots en `.playwright-mcp/` a los viewports que indique el spec (ej. 1440px desktop, 375px mobile).
+   - Interactúa con la página (clicks, teclado, resize) según lo requiera el criterio.
+   - Si el criterio pasa → marca `[x]` en el archivo del spec.
+4. Reporta resultados: cuántos pasaron, cuáles fallaron y por qué.
+
+**Screenshots:** siempre en `.playwright-mcp/` (gitignored), nunca en `references/`.
 
 ## Notes
 
