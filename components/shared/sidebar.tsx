@@ -1,9 +1,13 @@
+"use client";
+
 import { classroom, user } from "@/data/mock/feed";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const navItems = [
   {
     label: "Feed",
-    active: true,
+    href: "/",
     icon: (
       <svg
         width="19"
@@ -21,7 +25,7 @@ const navItems = [
   },
   {
     label: "Niños",
-    active: false,
+    href: "/kids",
     icon: (
       <svg
         width="19"
@@ -41,7 +45,7 @@ const navItems = [
   },
   {
     label: "Avisos",
-    active: false,
+    href: "/avisos",
     icon: (
       <svg
         width="19"
@@ -59,7 +63,7 @@ const navItems = [
   },
   {
     label: "Mi cuenta",
-    active: false,
+    href: "/account",
     icon: (
       <svg
         width="19"
@@ -79,6 +83,8 @@ const navItems = [
 ];
 
 export function Sidebar() {
+  const pathname = usePathname();
+
   return (
     <div className="flex flex-1 flex-col px-4 py-6">
       <div className="flex items-center gap-[11px] px-2 pt-1 pb-[22px]">
@@ -125,19 +131,27 @@ export function Sidebar() {
       </button>
 
       <nav className="flex flex-1 flex-col gap-1">
-        {navItems.map((item) => (
-          <span
-            key={item.label}
-            className={
-              item.active
-                ? "flex items-center gap-3 rounded-[12px] bg-blush px-3 py-[11px] text-[14.5px] font-extrabold text-coral-deep"
-                : "flex items-center gap-3 rounded-[12px] px-3 py-[11px] text-[14.5px] font-semibold text-mocha"
-            }
-          >
-            {item.icon}
-            {item.label}
-          </span>
-        ))}
+        {navItems.map((item) => {
+          const isActive =
+            item.href === "/"
+              ? pathname === "/"
+              : pathname.startsWith(item.href);
+
+          return (
+            <Link
+              key={item.label}
+              href={item.href}
+              className={
+                isActive
+                  ? "flex items-center gap-3 rounded-[12px] bg-blush px-3 py-[11px] text-[14.5px] font-extrabold text-coral-deep"
+                  : "flex items-center gap-3 rounded-[12px] px-3 py-[11px] text-[14.5px] font-semibold text-mocha"
+              }
+            >
+              {item.icon}
+              {item.label}
+            </Link>
+          );
+        })}
       </nav>
 
       <div className="mt-2.5 border-t border-linen pt-3.5">
