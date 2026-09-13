@@ -1,6 +1,6 @@
 # SPEC 03 — Login and Activate Account Screens
 
-> **State:** Approved
+> **State:** Implemented
 > **Depends on:** None
 > **Date:** 2026-09-13
 > **Objective:** Implement the `/login` and `/activate` routes as visual-only auth screens matching the reference mockups, responsive, outside the dashboard nav shell, with internal role tracking on login for future use.
@@ -68,23 +68,23 @@ This feature introduces no new data structures. All values are hardcoded strings
 
 ## Acceptance Criteria
 
-- [ ] `npm run lint` passes with no errors
-- [ ] `npm run build` passes with no errors
-- [ ] `/login` renders at desktop viewport (1440px) matching `references/pantallas/login.dc.html`: two-column layout with branding panel (gradient, logo, headline, subtitle, classroom name) on left, login form (heading, email, password, forgot password link, login button, footer link to activate) on right
-- [ ] `/login` renders at mobile viewport (375px) with branding panel hidden and login form centered
-- [ ] No horizontal scroll at 375px on `/login`
-- [ ] `/activate` renders at desktop viewport (1440px) matching `references/pantallas/activar-cuenta.dc.html`: centered form with icon, welcome heading, child info card, invitation code, email, password, authorization checkbox, activation button, footer link to login
-- [ ] `/activate` renders at mobile viewport (375px) with centered form and full-width inputs
-- [ ] No horizontal scroll at 375px on `/activate`
-- [ ] Both routes are outside the `(dashboard)` route group — no sidebar, no nav shell visible
-- [ ] Login page includes internal role state (`useState<"staff" | "parent">("staff")`) — no role toggle UI
-- [ ] All UI copy is in Spanish
-- [ ] All component code uses English naming (files, variables, types)
-- [ ] All styling via Tailwind classes (no CSS files created)
-- [ ] Login button and activate button are visual placeholders — no navigation occurs on click
-- [ ] Footer links navigate between `/login` and `/activate`
-- [ ] Fonts: Fredoka for headings, Nunito for body (inherited from root layout)
-- [ ] Colors match mockup: warm background `#FBF4EC`, text `#3F362E`, coral gradient for buttons/branding panel
+- [x] `npm run lint` passes with no errors
+- [x] `npm run build` passes with no errors
+- [x] `/login` renders at desktop viewport (1440px) matching `references/pantallas/login.dc.html`: two-column layout with branding panel (gradient, logo, headline, subtitle, classroom name) on left, login form (heading, email, password, forgot password link, login button, footer link to activate) on right
+- [x] `/login` renders at mobile viewport (375px) with branding panel hidden and login form centered
+- [x] No horizontal scroll at 375px on `/login`
+- [x] `/activate` renders at desktop viewport (1440px) matching `references/pantallas/activar-cuenta.dc.html`: centered form with icon, welcome heading, child info card, invitation code, email, password, authorization checkbox, activation button, footer link to login
+- [x] `/activate` renders at mobile viewport (375px) with centered form and full-width inputs
+- [x] No horizontal scroll at 375px on `/activate`
+- [x] Both routes are outside the `(dashboard)` route group — no sidebar, no nav shell visible
+- [x] Login page includes internal role state (`useState<"staff" | "parent">("staff")`) — no role toggle UI
+- [x] All UI copy is in Spanish
+- [x] All component code uses English naming (files, variables, types)
+- [x] All styling via Tailwind classes (no CSS files created)
+- [x] Login button and activate button are visual placeholders — no navigation occurs on click
+- [x] Footer links navigate between `/login` and `/activate`
+- [x] Fonts: Fredoka for headings, Nunito for body (inherited from root layout)
+- [x] Colors match mockup: warm background `#FBF4EC`, text `#3F362E`, coral gradient for buttons/branding panel
 
 ## Decisions
 
@@ -117,3 +117,25 @@ This feature introduces no new data structures. All values are hardcoded strings
 - Navigation to dashboard after login
 
 Each one of those, if it lands, goes in its own spec.
+
+---
+
+## Verification
+
+**Date:** 2026-09-13  
+**Verifier:** @spec-verifier  
+**Result:** 17/17 Pass
+
+All acceptance criteria verified via:
+
+- `npm run lint` + `npm run build` — both pass
+- Playwright snapshots and screenshots at 1440px and 375px for `/login` and `/activate`
+- Playwright interaction: buttons are placeholders, footer links navigate correctly
+- Playwright CSS inspection: fonts (Fredoka/Nunito), colors (#FBF4EC, #3F362E, coral gradients)
+- No horizontal scroll at 375px on either page
+- No sidebar/nav shell on auth routes
+- Code conventions: English naming, Spanish copy, Tailwind-only styling
+
+**Note:** Activate page uses `"use client"` (for password `useState`) despite spec plan calling for server component. Non-blocking deviation.
+
+**Screenshots:** `.playwright-mcp/spec-03-login-and-activate/`
