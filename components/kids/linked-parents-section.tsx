@@ -57,7 +57,7 @@ export function LinkedParentsSection({
           <button
             type="button"
             onClick={() => setModalOpen(true)}
-            className="flex items-center gap-3 pt-2"
+            className="flex cursor-pointer items-center gap-3 pt-2"
           >
             <span className="flex h-10 w-10 flex-none items-center justify-center rounded-full border-[1.5px] border-dashed border-[#D8CBBA] text-[#B0A290]">
               <svg
