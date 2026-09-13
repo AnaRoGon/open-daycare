@@ -85,7 +85,7 @@ export function CreatePostModal({ open, onClose }: CreatePostModalProps) {
           <button
             type="button"
             onClick={handleClose}
-            className="text-[15px] font-bold text-[#94887B]"
+            className="cursor-pointer text-[15px] font-bold text-[#94887B] transition-colors hover:text-[#7A6F64] active:text-[#6B6158]"
           >
             Cancelar
           </button>
@@ -95,7 +95,7 @@ export function CreatePostModal({ open, onClose }: CreatePostModalProps) {
           <button
             type="button"
             onClick={handleClose}
-            className="text-[15px] font-extrabold text-[#D9583C]"
+            className="cursor-pointer text-[15px] font-extrabold text-[#D9583C] transition-colors hover:text-[#C44A2E] active:text-[#B03F25]"
           >
             Publicar
           </button>
