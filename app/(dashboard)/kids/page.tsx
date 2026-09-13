@@ -1,11 +1,13 @@
 "use client";
 
 import { KidCard } from "@/components/kids/kid-card";
+import { AddChildModal } from "@/components/kids/add-child-modal";
 import { children } from "@/data/mock/kids";
 import { useState } from "react";
 
 export default function KidsPage() {
   const [query, setQuery] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
 
   const filtered = children.filter((child) =>
     child.name.toLowerCase().includes(query.toLowerCase())
@@ -24,6 +26,7 @@ export default function KidsPage() {
         </div>
         <button
           type="button"
+          onClick={() => setModalOpen(true)}
           className="flex items-center gap-2 rounded-[14px] bg-gradient-to-b from-[#F4977E] to-[#EE8164] px-[18px] py-[11px] font-extrabold text-[14.5px] text-white shadow-[0_8px_18px_-8px_rgba(238,129,100,.7)]"
         >
           <svg
@@ -79,6 +82,8 @@ export default function KidsPage() {
           <KidCard key={child.id} child={child} />
         ))}
       </div>
+
+      <AddChildModal open={modalOpen} onClose={() => setModalOpen(false)} />
     </div>
   );
 }
