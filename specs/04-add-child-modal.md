@@ -1,6 +1,6 @@
 # SPEC 04 — Add Child Modal
 
-> **Status:** Approved
+> **Status:** Implemented
 > **Depends on:** SPEC 02
 > **Date:** 2026-09-13
 > **Objective:** Implement a modal dialog for adding a child that appears when clicking "Agregar niño" on the `/kids` page, matching the reference mockup `agregar-nino.dc.html`, with required field validation and classroom options.
@@ -80,28 +80,28 @@ No new interfaces are introduced. The modal form fields map to existing `Child` 
 
 ## Acceptance Criteria
 
-- [ ] `npm run lint` passes with no errors
-- [ ] `npm run build` passes with no errors
-- [ ] `data/mock/kids.ts` exports `Classroom` enum with values "Soles", "Hojas Verdes", "Arcoiris"
-- [ ] `components/kids/add-child-modal.tsx` exists and is a client component
-- [ ] Modal does not render when `open` prop is false
-- [ ] Modal renders centered overlay with card matching `references/pantallas/agregar-nino.dc.html` at 1440px
-- [ ] Modal header shows "Cancelar" (left), "Agregar niño" (center, Fredoka), "Guardar" (right, coral)
-- [ ] Form contains all 5 fields: nombre completo, fecha de nacimiento, sala, alergias, notas médicas
-- [ ] Labels use taupe color, 12px, extrabold, with letter-spacing
-- [ ] Inputs have rounded corners (14px), light border, white background
-- [ ] "Fecha de nacimiento" auto-formats as dd/mm/yyyy while typing (slashes inserted automatically)
-- [ ] "Sala" is a native `<select>` dropdown with 3 classroom options
-- [ ] Clicking "Guardar" with empty required fields shows red borders on those fields and modal stays open
-- [ ] Clicking "Guardar" with all required fields filled calls `onClose()` and modal closes
-- [ ] Clicking "Cancelar" closes the modal
-- [ ] Clicking the overlay backdrop closes the modal
-- [ ] Pressing Escape key closes the modal
-- [ ] "Agregar niño" button on `/kids` page opens the modal
-- [ ] Modal is responsive and usable at 375px viewport (no horizontal scroll, inputs full-width)
-- [ ] All UI copy is in Spanish
-- [ ] All component code uses English naming
-- [ ] All styling via Tailwind classes (no CSS files created)
+- [x] `npm run lint` passes with no errors
+- [x] `npm run build` passes with no errors
+- [x] `data/mock/kids.ts` exports `Classroom` enum with values "Soles", "Hojas Verdes", "Arcoiris"
+- [x] `components/kids/add-child-modal.tsx` exists and is a client component
+- [x] Modal does not render when `open` prop is false
+- [x] Modal renders centered overlay with card matching `references/pantallas/agregar-nino.dc.html` at 1440px
+- [x] Modal header shows "Cancelar" (left), "Agregar niño" (center, Fredoka), "Guardar" (right, coral)
+- [x] Form contains all 5 fields: nombre completo, fecha de nacimiento, sala, alergias, notas médicas
+- [x] Labels use taupe color, 12px, extrabold, with letter-spacing
+- [x] Inputs have rounded corners (14px), light border, white background
+- [x] "Fecha de nacimiento" auto-formats as dd/mm/yyyy while typing (slashes inserted automatically)
+- [x] "Sala" is a native `<select>` dropdown with 3 classroom options
+- [x] Clicking "Guardar" with empty required fields shows red borders on those fields and modal stays open
+- [x] Clicking "Guardar" with all required fields filled calls `onClose()` and modal closes
+- [x] Clicking "Cancelar" closes the modal
+- [x] Clicking the overlay backdrop closes the modal
+- [x] Pressing Escape key closes the modal
+- [x] "Agregar niño" button on `/kids` page opens the modal
+- [x] Modal is responsive and usable at 375px viewport (no horizontal scroll, inputs full-width)
+- [x] All UI copy is in Spanish
+- [x] All component code uses English naming
+- [x] All styling via Tailwind classes (no CSS files created)
 
 ## Decisions
 
