@@ -1,4 +1,31 @@
-export type PostType = "logro" | "actividad" | "anuncio";
+export type PostType =
+  | "comida"
+  | "siesta"
+  | "actividad"
+  | "logro"
+  | "animo"
+  | "foto"
+  | "anuncio";
+
+export const postTypeLabels: Record<PostType, string> = {
+  comida: "Comida",
+  siesta: "Siesta",
+  actividad: "Actividad",
+  logro: "Logro",
+  animo: "Ánimo",
+  foto: "Foto",
+  anuncio: "Anuncio",
+};
+
+export const postTypeColors: Record<PostType, { bg: string; text: string }> = {
+  comida: { bg: "#9A7B1E", text: "#fff" },
+  siesta: { bg: "#E7DCF6", text: "#7B5FC0" },
+  actividad: { bg: "#2E89A6", text: "#fff" },
+  logro: { bg: "#CFEBD8", text: "#3E9B6C" },
+  animo: { bg: "#F9D2DE", text: "#C56486" },
+  foto: { bg: "#FBD8CC", text: "#D9684A" },
+  anuncio: { bg: "#CCD8F4", text: "#4E72C8" },
+};
 
 export interface Post {
   id: string;

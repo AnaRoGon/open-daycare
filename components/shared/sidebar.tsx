@@ -1,8 +1,10 @@
 "use client";
 
 import { classroom, user } from "@/data/mock/feed";
+import { CreatePostModal } from "@/components/feed/create-post-modal";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 
 const navItems = [
   {
@@ -84,8 +86,10 @@ const navItems = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const [modalOpen, setModalOpen] = useState(false);
 
   return (
+    <>
     <div className="flex flex-1 flex-col px-4 py-6">
       <div className="flex items-center gap-[11px] px-2 pt-1 pb-[22px]">
         <div className="flex h-[38px] w-[38px] flex-none items-center justify-center rounded-[12px] bg-[linear-gradient(155deg,#F8C3A8,#F2937A)] text-white">
@@ -113,7 +117,8 @@ export function Sidebar() {
 
       <button
         type="button"
-        className="mb-[18px] flex w-full items-center justify-center gap-2 rounded-[14px] bg-[linear-gradient(180deg,#F4977E,#EE8164)] p-3 text-[14.5px] font-extrabold text-white shadow-[0_8px_18px_-8px_rgba(238,129,100,0.75)]"
+        onClick={() => setModalOpen(true)}
+        className="mb-[18px] flex w-full cursor-pointer items-center justify-center gap-2 rounded-[14px] bg-[linear-gradient(180deg,#F4977E,#EE8164)] p-3 text-[14.5px] font-extrabold text-white shadow-[0_8px_18px_-8px_rgba(238,129,100,0.75)]"
       >
         <svg
           width="17"
@@ -183,5 +188,7 @@ export function Sidebar() {
         </div>
       </div>
     </div>
+    <CreatePostModal open={modalOpen} onClose={() => setModalOpen(false)} />
+    </>
   );
 }
