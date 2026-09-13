@@ -4,6 +4,14 @@ export enum AllergyType {
   None = "",
 }
 
+export enum Classroom {
+  Soles = "Soles",
+  HojasVerdes = "Hojas Verdes",
+  Arcoiris = "Arcoiris",
+}
+
+export const classrooms = Object.values(Classroom);
+
 export enum AvatarColor {
   Sky = "#A9D9E8",
   SkyText = "#1F7A93",
