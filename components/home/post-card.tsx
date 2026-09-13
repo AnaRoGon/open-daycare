@@ -4,17 +4,41 @@ const badgeByType: Record<
   PostType,
   { label: string; pill: string; dot: string; text: string }
 > = {
-  logro: {
-    label: "LOGRO",
-    pill: "bg-mint",
-    dot: "bg-mint-deep",
-    text: "text-mint-deep",
+  comida: {
+    label: "COMIDA",
+    pill: "bg-[#9A7B1E]",
+    dot: "bg-[#9A7B1E]",
+    text: "text-white",
+  },
+  siesta: {
+    label: "SIESTA",
+    pill: "bg-[#E7DCF6]",
+    dot: "bg-[#7B5FC0]",
+    text: "text-[#7B5FC0]",
   },
   actividad: {
     label: "ACTIVIDAD",
     pill: "bg-sky",
     dot: "bg-sky-deep",
     text: "text-sky-deep",
+  },
+  logro: {
+    label: "LOGRO",
+    pill: "bg-mint",
+    dot: "bg-mint-deep",
+    text: "text-mint-deep",
+  },
+  animo: {
+    label: "ÁNIMO",
+    pill: "bg-[#F9D2DE]",
+    dot: "bg-[#C56486]",
+    text: "text-[#C56486]",
+  },
+  foto: {
+    label: "FOTO",
+    pill: "bg-[#FBD8CC]",
+    dot: "bg-[#D9684A]",
+    text: "text-[#D9684A]",
   },
   anuncio: {
     label: "ANUNCIO",
