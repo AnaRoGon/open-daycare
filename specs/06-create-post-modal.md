@@ -1,6 +1,6 @@
 # SPEC 06 — Create Post Modal
 
-> **Status:** Approved
+> **Status:** Implemented
 > **Depends on:** SPEC 01, SPEC 02
 > **Date:** 2026-09-13
 > **Objective:** Implement a visual modal that appears when clicking "Nueva publicación" in the sidebar, matching the reference mockup `crear-publicacion.dc.html`, with interactive audience and type chips, an editable textarea, and a visual-only photo section, without persisting the post.
@@ -116,33 +116,33 @@ components/
 
 ## Acceptance Criteria
 
-- [ ] `npm run lint` passes with no errors
-- [ ] `npm run build` passes with no errors
-- [ ] `data/mock/feed.ts` exports `PostType` with 7 values: comida, siesta, actividad, logro, animo, foto, anuncio
-- [ ] `data/mock/feed.ts` exports `postTypeLabels` and `postTypeColors`
-- [ ] `components/feed/create-post-modal.tsx` exists and is a client component
-- [ ] Modal does not render when `open` prop is false
-- [ ] Modal renders centered overlay with card matching `references/pantallas/crear-publicacion.dc.html` at 1440px
-- [ ] Header shows "Cancelar" (left), "Nueva publicación" (center, Fredoka), "Publicar" (right, coral)
-- [ ] PARA section shows chips for all children from mock data + "Toda la sala" button
-- [ ] Child chips show circular avatar with initial + name (matching the mockup)
-- [ ] Selecting "Toda la sala" deselects any previously selected children
-- [ ] Selecting a child deselects "Toda la sala" if it was active
-- [ ] Multiple children can be selected simultaneously
-- [ ] TIPO section shows 7 chips: Comida, Siesta, Actividad, Logro, Ánimo, Foto, Anuncio
-- [ ] Type chips have the colors from the mockup
-- [ ] Only one type can be selected at a time
-- [ ] DESCRIPCIÓN textarea is editable with placeholder "Contá cómo le fue hoy…"
-- [ ] FOTOS section shows image placeholder + "Agregar" button (visual only, no functionality)
-- [ ] Clicking "Cancelar" closes the modal
-- [ ] Clicking the overlay backdrop closes the modal
-- [ ] Pressing Escape key closes the modal
-- [ ] Clicking "Publicar" closes the modal
-- [ ] "Nueva publicación" button in the sidebar opens the modal
-- [ ] Modal is responsive and usable at 375px viewport (no horizontal scroll, content legible)
-- [ ] All UI copy is in Spanish
-- [ ] All component code uses English naming
-- [ ] All styling via Tailwind classes (no CSS files created)
+- [x] `npm run lint` passes with no errors
+- [x] `npm run build` passes with no errors
+- [x] `data/mock/feed.ts` exports `PostType` with 7 values: comida, siesta, actividad, logro, animo, foto, anuncio
+- [x] `data/mock/feed.ts` exports `postTypeLabels` and `postTypeColors`
+- [x] `components/feed/create-post-modal.tsx` exists and is a client component
+- [x] Modal does not render when `open` prop is false
+- [x] Modal renders centered overlay with card matching `references/pantallas/crear-publicacion.dc.html` at 1440px
+- [x] Header shows "Cancelar" (left), "Nueva publicación" (center, Fredoka), "Publicar" (right, coral)
+- [x] PARA section shows chips for all children from mock data + "Toda la sala" button
+- [x] Child chips show circular avatar with initial + name (matching the mockup)
+- [x] Selecting "Toda la sala" deselects any previously selected children
+- [x] Selecting a child deselects "Toda la sala" if it was active
+- [x] Multiple children can be selected simultaneously
+- [x] TIPO section shows 7 chips: Comida, Siesta, Actividad, Logro, Ánimo, Foto, Anuncio
+- [x] Type chips have the colors from the mockup
+- [x] Only one type can be selected at a time
+- [x] DESCRIPCIÓN textarea is editable with placeholder "Contá cómo le fue hoy…"
+- [x] FOTOS section shows image placeholder + "Agregar" button (visual only, no functionality)
+- [x] Clicking "Cancelar" closes the modal
+- [x] Clicking the overlay backdrop closes the modal
+- [x] Pressing Escape key closes the modal
+- [x] Clicking "Publicar" closes the modal
+- [x] "Nueva publicación" button in the sidebar opens the modal
+- [x] Modal is responsive and usable at 375px viewport (no horizontal scroll, content legible)
+- [x] All UI copy is in Spanish
+- [x] All component code uses English naming
+- [x] All styling via Tailwind classes (no CSS files created)
 
 ## Decisions
 
@@ -172,3 +172,17 @@ components/
 - Dark mode
 
 Each one of those, if it lands, goes in its own spec.
+
+---
+
+## Verification
+
+**Date:** 2026-09-13
+**Verified by:** @spec-verifier
+**Result:** 27/27 PASS
+
+Screenshots:
+- `.playwright-mcp/spec-06-create-post-modal/modal-open-1440.png`
+- `.playwright-mcp/spec-06-create-post-modal/modal-open-375.png`
+
+All acceptance criteria verified via: `npm run lint` + `npm run build`, code review, Playwright interaction tests (open/close via Cancelar, overlay, Escape, Publicar; selection logic for children and types; textarea editing), and responsive testing at 1440px and 375px.
