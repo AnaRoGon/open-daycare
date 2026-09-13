@@ -5,6 +5,8 @@ import Link from "next/link";
 
 export default function LoginPage() {
   const [role] = useState<"staff" | "parent">("staff");
+  const [email, setEmail] = useState("caro@opendaycare.com");
+  const [password, setPassword] = useState("");
 
   // Role state tracked for future use — no UI toggle shown
   void role;
@@ -58,8 +60,10 @@ export default function LoginPage() {
           </div>
           <input
             type="email"
-            defaultValue="caro@opendaycare.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             className="w-full px-4 py-3.5 rounded-[14px] border border-[#EADFD0] bg-white text-[#3F362E] text-sm mb-4"
+            suppressHydrationWarning
           />
 
           {/* Password */}
@@ -68,6 +72,8 @@ export default function LoginPage() {
           </div>
           <input
             type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
             className="w-full px-4 py-3.5 rounded-[14px] border border-[#EADFD0] bg-white text-[#3F362E] text-sm mb-2.5"
           />

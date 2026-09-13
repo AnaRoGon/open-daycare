@@ -1,6 +1,11 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 
 export default function ActivatePage() {
+  const [password, setPassword] = useState("contraseña");
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#FBF4EC] px-5 py-10">
       <div className="w-full max-w-[440px]">
@@ -36,7 +41,7 @@ export default function ActivatePage() {
           CÓDIGO DE INVITACIÓN
         </div>
         <input
-          defaultValue="7K4P9"
+          value="7K4P9"
           readOnly
           className="w-full px-4 py-3.5 rounded-[14px] border border-[#EADFD0] bg-white text-[#3F362E] text-lg tracking-[3px] font-bold font-display mb-4.5"
         />
@@ -47,7 +52,7 @@ export default function ActivatePage() {
         </div>
         <input
           type="email"
-          defaultValue="lucia.fernandez@gmail.com"
+          value="lucia.fernandez@gmail.com"
           readOnly
           className="w-full px-4 py-3.5 rounded-[14px] border border-[#EADFD0] bg-white text-[#3F362E] text-sm mb-4.5"
         />
@@ -58,7 +63,8 @@ export default function ActivatePage() {
         </div>
         <input
           type="password"
-          defaultValue="contraseña"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
           className="w-full px-4 py-3.5 rounded-[14px] border border-[#F2A78E] bg-white text-[#3F362E] text-sm mb-4.5"
         />
 
