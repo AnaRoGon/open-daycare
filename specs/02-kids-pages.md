@@ -170,20 +170,28 @@ export const children: Child[] = [
 
 ## Verification Results
 
-**Date:** Sat Sep 12 2026  
+**Date:** Sun Sep 13 2026 (re-verified on `opencode/issue5-20260913184037`, after PR #4 / spec 04 merge)  
 **Verifier:** @spec-verifier  
 **Result:** ALL 19 CRITERIA PASSED
 
 ### Build & Lint
-- `npm run lint` — passed
-- `npm run build` — passed (TypeScript, static generation, all routes compiled)
+- `npm run lint` — passed (no errors)
+- `npm run build` — passed (TypeScript, static generation: `/kids` static, `/kids/[id]` dynamic, 7/7 pages)
 
 ### Visual Verification (Playwright screenshots in `.playwright-mcp/`)
-- `kids-desktop.png` — `/kids` at 1440px: header, search, 2-column grid, 8 cards with avatars/allergy badges
-- `kids-mobile.png` — `/kids` at 375px: single-column stacked layout, search bar, header
-- `profile-mateo-desktop.png` — `/kids/mateo-fernandez` at 1440px: two-column layout, avatar, allergy card, data table, linked parents with status badges
-- `profile-mateo-mobile.png` — `/kids/mateo-fernandez` at 375px: single-column stacked layout
+- `kids-desktop.png` — `/kids` at 1440px: header, search, 2-column grid (393px columns), 8 cards with avatars/allergy badges
+- `kids-mobile.png` — `/kids` at 375px: single-column stacked layout (335px cards), search bar, header
+- `profile-mateo-desktop.png` — `/kids/mateo-fernandez` at 1440px: two-column layout (flex-row), 84px avatar, Fredoka 28px name, allergy card, data table, linked parents with status badges (ACTIVA `rgb(207,235,216)`, PENDIENTE `rgb(247,231,166)`)
+- `profile-mateo-mobile.png` — `/kids/mateo-fernandez` at 375px: single-column stacked layout (flex-column)
 
-### Functional Tests
-- Search "mateo" → filtered from "8 niños" to "1 niño", only Mateo Fernández shown
+### Functional Tests (37/37 automated checks passed)
+- Search "mateo" → filtered from "8 niños" to "1 niño", only Mateo Fernández shown; case-insensitive ("SOFÍA" → 1 result); clearing restores 8
+- Hover on kid card → computed `translate: 0px -2px` + border-color `rgb(242,167,142)` (#F2A78E)
+- Card avatars match mockup colors exactly (Mateo #A9D9E8, Sofía #F4B8CC, Benjamín #B9DEC4, Valentina #F4DC8E, Tomás #C9B6E8, Emma #F4B8CC, Lucas #A9D9E8, Olivia #B9DEC4 — mockup repeats pairs, data matches)
 - "Volver a Niños" link → successfully navigated from `/kids/mateo-fernandez` back to `/kids`
+- Unknown id (`/kids/does-not-exist`) → 404 not-found state via `notFound()`
+- Static checks: `NavShell`/`Sidebar` reused via `(dashboard)` layout; only `app/globals.css` exists (no new CSS files); code naming in English
+
+### Notes
+- Spec 04 additions (`AddChildModal`, `Classroom` enum in `data/mock/kids.ts`, `"Agregar niño"` opens modal) coexist on these routes without breaking any 02 criteria
+- "Vincular otro padre" links to `/kids/[id]/link-parent`, a route not yet implemented (404 until the corresponding spec lands) — consistent with parent-linking being out of scope for this spec
