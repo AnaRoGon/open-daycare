@@ -38,30 +38,41 @@ Large features go through the spec skills in `.agents/skills/` (tracked by `skil
 
 ## MCPs
 
-- Playwright: Screenshots y cualquier cosa relacionada a Playwright tienen que estar en la carpeta `.playwright-mcp` (gitignored).
-- Context7: Usaremos este MCP para consultar la documentación actualizada del framework.
+- Playwright: Screenshots and anything related to Playwright must go in the `.playwright-mcp` folder (gitignored).
+- Context7: Use this MCP to fetch up-to-date framework documentation.
+- Supabase: Use the Supabase MCP for all database interactions (migrations, queries, edge functions, logs, advisories). Before making schema changes, inspect existing tables with `supabase_list_tables`. For debugging, start by reading project logs and security/performance advisories.
+
+## Skills
+
+Skills installed in `.agents/skills/` (tracked by `skills-lock.json`):
+
+- `context7-mcp` — Fetch up-to-date library/framework documentation via Context7 MCP.
+- `supabase` — Critical guide for Supabase development and security (Database, Auth, Edge Functions, Realtime, Storage, RLS, CLI/MCP, migrations, extensions).
+- `supabase-postgres-best-practices` — Postgres best practices: schema design, migrations, RLS policies, indexes, triggers, pg_cron, pgvector, performance tuning, debugging slow queries.
+
+Use `@supabase` for any task involving Supabase. Use `@supabase-postgres-best-practices` BEFORE writing or altering anything related to Postgres (tables, columns, migrations, RLS, queries).
 
 ## Spec verifier (`@spec-verifier`)
 
-Agente que verifica un spec implementado contra sus criterios de aceptación. Se invoca como `@spec-verifier @specs/NN-slug.md`.
+Agent that verifies an implemented spec against its acceptance criteria. Invoked as `@spec-verifier @specs/NN-slug.md`.
 
-**Flujo:**
+**Flow:**
 
-1. Lee el spec y extrae los criterios de aceptación (checklist `[ ]`).
-2. Corre `npm run lint` + `npm run build` — si fallan, los criterios no pasan.
-3. Para cada criterio visual/funcional:
-   - Usa Playwright para navegar a la ruta correspondiente.
-   - Toma screenshots en `.playwright-mcp/` a los viewports que indique el spec (ej. 1440px desktop, 375px mobile).
-   - Interactúa con la página (clicks, teclado, resize) según lo requiera el criterio.
-   - Si el criterio pasa → marca `[x]` en el archivo del spec.
-4. Reporta resultados: cuántos pasaron, cuáles fallaron y por qué.
+1. Reads the spec and extracts acceptance criteria (checklist `[ ]`).
+2. Runs `npm run lint` + `npm run build` — if either fails, criteria do not pass.
+3. For each visual/functional criterion:
+   - Uses Playwright to navigate to the corresponding route.
+   - Takes screenshots in `.playwright-mcp/` at the viewports specified by the spec (e.g. 1440px desktop, 375px mobile).
+   - Interacts with the page (clicks, keyboard, resize) as required by the criterion.
+   - If the criterion passes → marks `[x]` in the spec file.
+4. Reports results: how many passed, which failed, and why.
 
-**Screenshots:** siempre en `.playwright-mcp/` (gitignored), nunca en `references/`.
+**Screenshots:** always in `.playwright-mcp/` (gitignored), never in `references/`.
 
 ## Notes
 
 - `CLAUDE.md` only imports this file (`@AGENTS.md`) — add guidance here, don't duplicate it there.
 
-## Reglas de código.
+## Code rules
 
-- Usa código limpio; nombre, funciones y variables en inglés.
+- Use clean code; names, functions, and variables in English.
