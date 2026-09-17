@@ -1,6 +1,6 @@
 # SPEC 07 — Daycares Table
 
-> **Status:** Approved
+> **Status:** Implemented
 > **Depends on:** None
 > **Date:** 2026-09-15
 > **Objective:** Create the `daycares` table in Supabase with only `id`, `name`, and `created_at` columns per the canonical schema, and seed 4 initial daycare records including "Guardería Sala Soles".
@@ -53,19 +53,19 @@ INSERT INTO daycares (id, name) VALUES
 
 ## Acceptance Criteria
 
-- [ ] `npm run lint` passes with no errors
-- [ ] `npm run build` passes with no errors
-- [ ] Migration `001_create_daycares` applied successfully via `supabase_apply_migration`
-- [ ] `daycares` table exists with exactly 3 columns: `id`, `name`, `created_at`
-- [ ] `id` column is uuid PK with `gen_random_uuid()` default
-- [ ] `name` column is text NOT NULL
-- [ ] `created_at` has `now()` default
-- [ ] 4 seed records exist in `daycares`
-- [ ] One seed record has name "Guardería Sala Soles"
-- [ ] No mock data files (`data/mock/`) are modified
-- [ ] All column names and identifiers are in English
-- [ ] No `updated_at` column exists on `daycares`
-- [ ] No address columns (`address`, `city`, `state`, `country`) exist on `daycares`
+- [x] `npm run lint` passes with no errors
+- [x] `npm run build` passes with no errors
+- [x] Migration `001_create_daycares` applied successfully via `supabase_apply_migration`
+- [x] `daycares` table exists with exactly 3 columns: `id`, `name`, `created_at`
+- [x] `id` column is uuid PK with `gen_random_uuid()` default
+- [x] `name` column is text NOT NULL
+- [x] `created_at` has `now()` default
+- [x] 4 seed records exist in `daycares`
+- [x] One seed record has name "Guardería Sala Soles"
+- [x] No mock data files (`data/mock/`) are modified
+- [x] All column names and identifiers are in English
+- [x] No `updated_at` column exists on `daycares`
+- [x] No address columns (`address`, `city`, `state`, `country`) exist on `daycares`
 
 ## Decisions
 
@@ -78,10 +78,10 @@ INSERT INTO daycares (id, name) VALUES
 
 ## Risks
 
-| Risk | Mitigation |
-| ---- | ---------- |
+| Risk                                         | Mitigation                                                                       |
+| -------------------------------------------- | -------------------------------------------------------------------------------- |
 | Table has no RLS until a future spec adds it | Acceptable risk during development; RLS will be added after `users` table exists |
-| Seed UUIDs not deterministic | Acceptable for seed data; can be specified explicitly later if needed |
+| Seed UUIDs not deterministic                 | Acceptable for seed data; can be specified explicitly later if needed            |
 
 ## What is **not** in this spec
 
@@ -101,20 +101,20 @@ Each one of those, if it lands, goes in its own spec.
 ## Verification Log
 
 **Date:** 2026-09-17  
-**Verifier:** Pending  
-**Result:** 0/12 verified (spec updated — awaiting re-implementation)
+**Verifier:** spec-verifier  
+**Result:** 12/12 passed
 
-| # | Criterion | Status | Notes |
-|---|-----------|--------|-------|
-| 1 | `npm run lint` passes | ⏳ | Pending re-implementation |
-| 2 | `npm run build` passes | ⏳ | Pending re-implementation |
-| 3 | Migration applied | ⏳ | Pending re-implementation |
-| 4 | `daycares` table with 3 columns | ⏳ | Pending re-implementation |
-| 5 | `id` uuid PK with `gen_random_uuid()` | ⏳ | Pending re-implementation |
-| 6 | `name` text NOT NULL | ⏳ | Pending re-implementation |
-| 7 | `created_at` default `now()` | ⏳ | Pending re-implementation |
-| 8 | 4 seed records | ⏳ | Pending re-implementation |
-| 9 | "Guardería Sala Soles" exists | ⏳ | Pending re-implementation |
-| 10 | No mock data modified | ⏳ | Pending re-implementation |
-| 11 | English column names | ⏳ | Pending re-implementation |
-| 12 | No `updated_at` or address columns | ⏳ | Pending re-implementation |
+| #   | Criterion                             | Status  | Notes                                                                         |
+| --- | ------------------------------------- | ------- | ----------------------------------------------------------------------------- |
+| 1   | `npm run lint` passes                 | ✅ Pass | ESLint ran with no errors                                                     |
+| 2   | `npm run build` passes                | ✅ Pass | TypeScript compiled, 7/7 pages generated, no errors                           |
+| 3   | Migration applied                     | ✅ Pass | Listed as `20260916063828 / 001_create_daycares`                              |
+| 4   | `daycares` table with 3 columns       | ✅ Pass | `supabase_list_tables` confirms exactly `id`, `name`, `created_at`            |
+| 5   | `id` uuid PK with `gen_random_uuid()` | ✅ Pass | `data_type: uuid`, `primary_keys: ["id"]`, `default_value: gen_random_uuid()` |
+| 6   | `name` text NOT NULL                  | ✅ Pass | `data_type: text`, not nullable                                               |
+| 7   | `created_at` default `now()`          | ✅ Pass | `data_type: timestamptz`, `default_value: now()`                              |
+| 8   | 4 seed records                        | ✅ Pass | `SELECT count(*)` returns 4                                                   |
+| 9   | "Guardería Sala Soles" exists         | ✅ Pass | Present in `SELECT name` results                                              |
+| 10  | No mock data modified                 | ✅ Pass | DB-only spec; no code changes                                                 |
+| 11  | English column names                  | ✅ Pass | `id`, `name`, `created_at` — all English                                      |
+| 12  | No `updated_at` or address columns    | ✅ Pass | Only 3 columns exist                                                          |
