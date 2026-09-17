@@ -1,6 +1,6 @@
 # SPEC 08 — Users Table and Enums
 
-> **Status:** Approved
+> **Status:** Implemented
 > **Depends on:** SPEC 07
 > **Date:** 2026-09-17
 > **Objective:** Create the `users` table with its two enum types (`user_role`, `user_status`), enable RLS, and seed a staff test user linked to "Guardería Sala Soles".
@@ -82,23 +82,23 @@ LIMIT 1;
 
 ## Acceptance Criteria
 
-- [ ] `npm run lint` passes
-- [ ] `npm run build` passes
-- [ ] Enum `user_role` exists with values: `staff`, `parent`, `admin`
-- [ ] Enum `user_status` exists with values: `pending`, `active`
-- [ ] `users` table exists with 10 columns: `id`, `daycare_id`, `role`, `status`, `full_name`, `avatar_url`, `notify_on_post`, `daily_summary_enabled`, `created_at`, `updated_at`
-- [ ] `id` is uuid PRIMARY KEY
-- [ ] `daycare_id` is uuid FK to `daycares(id)`
-- [ ] `role` uses `user_role`, NOT NULL
-- [ ] `status` uses `user_status`, NOT NULL, default `'active'`
-- [ ] `notify_on_post` boolean NOT NULL default `true`
-- [ ] `daily_summary_enabled` boolean NOT NULL default `true`
-- [ ] `created_at` / `updated_at` timestamptz NOT NULL default `now()`
-- [ ] RLS enabled on `users`
-- [ ] At least one RLS policy exists on `users`
-- [ ] Staff user exists with `full_name` = 'Ani', `role` = 'staff', `status` = 'active'
-- [ ] Staff user linked to "Guardería Sala Soles"
-- [ ] No `AFTER INSERT` trigger on `auth.users` created
+- [x] `npm run lint` passes
+- [x] `npm run build` passes
+- [x] Enum `user_role` exists with values: `staff`, `parent`, `admin`
+- [x] Enum `user_status` exists with values: `pending`, `active`
+- [x] `users` table exists with 10 columns: `id`, `daycare_id`, `role`, `status`, `full_name`, `avatar_url`, `notify_on_post`, `daily_summary_enabled`, `created_at`, `updated_at`
+- [x] `id` is uuid PRIMARY KEY
+- [x] `daycare_id` is uuid FK to `daycares(id)`
+- [x] `role` uses `user_role`, NOT NULL
+- [x] `status` uses `user_status`, NOT NULL, default `'active'`
+- [x] `notify_on_post` boolean NOT NULL default `true`
+- [x] `daily_summary_enabled` boolean NOT NULL default `true`
+- [x] `created_at` / `updated_at` timestamptz NOT NULL default `now()`
+- [x] RLS enabled on `users`
+- [x] At least one RLS policy exists on `users`
+- [x] Staff user exists with `full_name` = 'Ani', `role` = 'staff', `status` = 'active'
+- [x] Staff user linked to "Guardería Sala Soles"
+- [x] No `AFTER INSERT` trigger on `auth.users` created
 
 ## Decisions
 
@@ -124,3 +124,31 @@ LIMIT 1;
 - UI for managing users
 
 Each one of those, if it lands, goes in its own spec.
+
+---
+
+## Verification Report
+
+**Date:** 2026-09-17
+**Verifier:** @spec-verifier
+**Result:** 17/17 PASS
+
+| #   | Criterion                                                      | Status | Evidence                                                                           |
+| --- | -------------------------------------------------------------- | ------ | ---------------------------------------------------------------------------------- |
+| 1   | `npm run lint` passes                                          | PASS   | ESLint completed with no errors                                                    |
+| 2   | `npm run build` passes                                         | PASS   | Next.js 16.3.2 build succeeded (468ms compile, 2.1s TypeScript)                    |
+| 3   | Enum `user_role` exists                                        | PASS   | `pg_enum` query returned: staff, parent, admin                                     |
+| 4   | Enum `user_status` exists                                      | PASS   | `pg_enum` query returned: pending, active                                          |
+| 5   | `users` table with 10 columns                                  | PASS   | `information_schema.columns` shows exactly 10 columns                              |
+| 6   | `id` uuid PRIMARY KEY                                          | PASS   | `primary_keys: ["id"]`, data_type: uuid, is_nullable: NO                           |
+| 7   | `daycare_id` FK to `daycares(id)`                              | PASS   | FK constraint `users_daycare_id_fkey` → `daycares(id)`                             |
+| 8   | `role` uses `user_role`, NOT NULL                              | PASS   | udt_name: user_role, is_nullable: NO                                               |
+| 9   | `status` uses `user_status`, NOT NULL, default `'active'`      | PASS   | udt_name: user_status, is_nullable: NO, default: `'active'::user_status`           |
+| 10  | `notify_on_post` boolean NOT NULL default `true`               | PASS   | data_type: boolean, is_nullable: NO, default: true                                 |
+| 11  | `daily_summary_enabled` boolean NOT NULL default `true`        | PASS   | data_type: boolean, is_nullable: NO, default: true                                 |
+| 12  | `created_at`/`updated_at` timestamptz NOT NULL default `now()` | PASS   | Both: timestamp with time zone, is_nullable: NO, default: now()                    |
+| 13  | RLS enabled on `users`                                         | PASS   | `rls_enabled: true` in table metadata                                              |
+| 14  | RLS policies exist                                             | PASS   | 4 policies: users_select_all, users_insert_all, users_update_all, users_delete_all |
+| 15  | Staff user Ani exists                                          | PASS   | Query returned: full_name='Ani', role='staff', status='active'                     |
+| 16  | Staff user linked to "Guardería Sala Soles"                    | PASS   | daycare_name='Guardería Sala Soles' via JOIN                                       |
+| 17  | No AFTER INSERT trigger on `auth.users`                        | PASS   | No triggers found on `auth.users` with tgtype=5 (AFTER INSERT)                     |
