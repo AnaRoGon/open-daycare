@@ -42,6 +42,22 @@ Large features go through the spec skills in `.agents/skills/` (tracked by `skil
 - Context7: Use this MCP to fetch up-to-date framework documentation.
 - Supabase: Use the Supabase MCP for all database interactions (migrations, queries, edge functions, logs, advisories). Before making schema changes, inspect existing tables with `supabase_list_tables`. For debugging, start by reading project logs and security/performance advisories.
 
+## Database Rules
+
+**Always use migrations for any database change.** This is non-negotiable.
+
+- **Schema changes** (CREATE/ALTER/DROP tables, columns, indexes, constraints, extensions) → `supabase_apply_migration`
+- **RLS policies** (ENABLE ROW LEVEL SECURITY, CREATE POLICY, ALTER POLICY, DROP POLICY) → `supabase_apply_migration`
+- **Seed data** (INSERT initial/reference data) → `supabase_apply_migration`
+- **Data migrations** (UPDATE/DELETE to transform existing data) → `supabase_apply_migration`
+- **Database functions, triggers, views** → `supabase_apply_migration`
+
+**Never** use `supabase_execute_sql` for DDL, RLS, or data migrations. `supabase_execute_sql` is only for read-only queries (SELECT) used for debugging, verification, or inspection.
+
+**Migration naming:** `NNN_short_description` (e.g., `001_create_daycares`, `002_enable_daycares_rls`). Each migration is a single `.sql` file in `supabase/migrations/`.
+
+**Migration dependencies:** If a migration depends on another object (e.g., a table that doesn't exist yet), document the dependency in a comment and apply it after the dependency is resolved. Do not skip migrations — they must all be applied in order.
+
 ## Skills
 
 Skills installed in `.agents/skills/` (tracked by `skills-lock.json`):
