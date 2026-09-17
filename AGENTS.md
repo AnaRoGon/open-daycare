@@ -36,6 +36,11 @@ Large features go through the spec skills in `.agents/skills/` (tracked by `skil
 - `/spec-impl NN-slug` — implements an Approved spec on a `spec-NN-slug` branch.
 - `@spec-verifier @specs/NN-slug.md` — verifies an implemented spec against its acceptance criteria. Runs `npm run lint` + `npm run build`, checks visual criteria with Playwright screenshots in `.playwright-mcp/`, and marks each criterion as `[x]` in the spec file when it passes.
 
+**Spec file organization:**
+
+- Database-related specs (schema changes, migrations, RLS policies, Supabase Edge Functions, etc.) → `specs/database/NN-slug.md`
+- All other specs → `specs/NN-slug.md`
+
 ## MCPs
 
 - Playwright: Screenshots and anything related to Playwright must go in the `.playwright-mcp` folder (gitignored).
