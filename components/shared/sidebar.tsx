@@ -2,6 +2,7 @@
 
 import { classroom, user } from "@/data/mock/feed";
 import { CreatePostModal } from "@/components/feed/create-post-modal";
+import { logout } from "@/app/actions";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -168,23 +169,26 @@ export function Sidebar() {
             <div className="text-sm font-extrabold text-cocoa">{user.name}</div>
             <div className="text-xs text-sand">{user.role}</div>
           </div>
-          <span
-            title="Cerrar sesión"
-            className="flex h-8 w-8 flex-none cursor-pointer items-center justify-center rounded-[10px] bg-cream text-taupe"
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+          <form action={logout}>
+            <button
+              type="submit"
+              title="Cerrar sesión"
+              className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-[10px] bg-cream text-taupe"
             >
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
-            </svg>
-          </span>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
+              </svg>
+            </button>
+          </form>
         </div>
       </div>
     </div>
