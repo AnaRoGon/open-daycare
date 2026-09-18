@@ -1,7 +1,8 @@
-import { classroom, user } from "@/data/mock/feed";
+import { classroom } from "@/data/mock/feed";
+import type { CurrentUser } from "@/utils/supabase/user";
 
-export function Greeting() {
-  const firstName = user.name.split(" ")[0];
+export function Greeting({ user }: { user: CurrentUser | null }) {
+  const firstName = user?.fullName.split(" ")[0] ?? "Usuario";
 
   return (
     <div className="mb-6">

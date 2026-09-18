@@ -1,11 +1,12 @@
 "use client";
 
-import { classroom, user } from "@/data/mock/feed";
+import { classroom } from "@/data/mock/feed";
 import { CreatePostModal } from "@/components/feed/create-post-modal";
 import { logout } from "@/app/actions";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import type { CurrentUser } from "@/utils/supabase/user";
 
 const navItems = [
   {
@@ -85,9 +86,13 @@ const navItems = [
   },
 ];
 
-export function Sidebar() {
+export function Sidebar({ user }: { user: CurrentUser | null }) {
   const pathname = usePathname();
   const [modalOpen, setModalOpen] = useState(false);
+
+  const displayName = user?.fullName ?? "Usuario";
+  const displayRole = user?.role === "staff" ? "Maestra" : user?.role === "admin" ? "Admin" : "Familia";
+  const displayInitials = user?.initials ?? "?";
 
   return (
     <>
@@ -163,11 +168,11 @@ export function Sidebar() {
       <div className="mt-2.5 border-t border-linen pt-3.5">
         <div className="flex items-center gap-[11px] px-2 py-1.5">
           <div className="flex h-[38px] w-[38px] flex-none items-center justify-center rounded-full bg-[#F2937A] font-display text-[16px] font-semibold text-white">
-            {user.initials}
+            {displayInitials}
           </div>
           <div className="min-w-0 flex-1">
-            <div className="text-sm font-extrabold text-cocoa">{user.name}</div>
-            <div className="text-xs text-sand">{user.role}</div>
+            <div className="text-sm font-extrabold text-cocoa">{displayName}</div>
+            <div className="text-xs text-sand">{displayRole}</div>
           </div>
           <form action={logout}>
             <button
