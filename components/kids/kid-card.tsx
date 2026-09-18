@@ -1,12 +1,23 @@
-import type { Child } from "@/data/mock/kids";
 import Link from "next/link";
 
+export interface KidCardChild {
+  id: string;
+  name: string;
+  initials: string;
+  age: string;
+  avatarColor: string;
+  avatarTextColor: string;
+  allergy: string;
+  parentCount?: number;
+  parents?: { length: number };
+}
+
 interface KidCardProps {
-  child: Child;
+  child: KidCardChild;
 }
 
 export function KidCard({ child }: KidCardProps) {
-  const parentCount = child.parents.length;
+  const parentCount = child.parentCount ?? child.parents?.length ?? 0;
   const parentLabel =
     parentCount === 0
       ? "sin padres vinculados"

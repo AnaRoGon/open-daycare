@@ -1,0 +1,237 @@
+# SPEC 11 — Connect Kids Page to Real Database
+
+> **Status:** Implemented
+> **Depends on:** SPEC 10 (Rooms and Children Tables), SPEC 09 (Real Auth and Route Protection)
+> **Date:** 2026-09-18
+> **Objective:** Replace mock data on `/kids` with real Supabase queries to `rooms` and `children` tables, grouping children by room, deriving UI-only fields on the frontend, and handling the empty state gracefully.
+
+---
+
+## Scope
+
+**In:**
+
+- Convert `app/(dashboard)/kids/page.tsx` from client component to server component for data fetching
+- Query `rooms` and `children` tables from Supabase using the existing server client (`utils/supabase/server.ts`)
+- Group children by room in the UI, replacing the hardcoded "SALA SOLES" section
+- Derive UI-only fields on the frontend: `age` from `birth_date`, `initials` from `full_name`, `avatarColor`/`avatarTextColor` deterministically from name
+- Keep the existing visual design (cards, search, add button, layout)
+- Handle empty state (0 children) gracefully — show a friendly message instead of an empty grid
+- Search filter works across all children regardless of room
+- All column names and identifiers in English (per DB convention)
+- No modifications to mock data files (`data/mock/`)
+
+**Out of scope (for future specs):**
+
+- `/kids/[id]` profile page — still uses mock data
+- "Editar" button functionality — still visual-only
+- `parent_children` table or linked parents on child pages
+- `invitations` table
+- Photo/avatar upload for children
+- Room management (add/edit/delete rooms)
+- Any changes to existing mock data files
+
+---
+
+## Data Model
+
+No new database structures. This spec reads from existing tables created in SPEC 10:
+
+- `rooms` — `id`, `daycare_id`, `name`, `created_at`
+- `children` — `id`, `room_id`, `full_name`, `birth_date`, `enrolled_at`, `medical_notes`, `allergy_tags`, `photo_consent`, `status`, `created_at`, `updated_at`
+
+The query joins `children` with `rooms` to get the room name for each child. Only `status = 'active'` children are shown.
+
+### Frontend-derived data structures
+
+```ts
+// UI-only type built from DB rows — not stored in DB
+interface ChildUI {
+  id: string;
+  name: string; // from children.full_name
+  initials: string; // derived: first letter of full_name
+  age: string; // derived: calculate from birth_date
+  classroom: string; // from rooms.name
+  birthday: string; // derived: format birth_date as "DD mon YYYY"
+  enrollmentDate: string; // derived: format enrolled_at as "mon YYYY"
+  allergy: string; // from medical_notes (non-null → show allergy card)
+  allergyNotes: string; // from medical_notes
+  avatarColor: string; // deterministic from name
+  avatarTextColor: string; // deterministic from name
+}
+
+interface RoomGroup {
+  roomId: string;
+  roomName: string;
+  children: ChildUI[];
+}
+```
+
+### Age calculation
+
+```ts
+function calculateAge(birthDate: Date): string {
+  const now = new Date();
+  const years = now.getFullYear() - birthDate.getFullYear();
+  return `${years} ${years === 1 ? "año" : "años"}`;
+}
+```
+
+### Avatar color generation
+
+Deterministic hash from the child's name, picking from the existing palette:
+
+```ts
+const AVATAR_COLORS = [
+  { bg: "#A9D9E8", text: "#1F7A93" }, // Sky
+  { bg: "#F4B8CC", text: "#C44A7A" }, // Pink
+  { bg: "#B9DEC4", text: "#3E8B62" }, // Green
+  { bg: "#F4DC8E", text: "#9A7B1E" }, // Yellow
+  { bg: "#C9B6E8", text: "#7B5FC0" }, // Purple
+];
+
+function getAvatarColors(name: string) {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+}
+```
+
+---
+
+## Implementation Plan
+
+1. **Create `lib/db/children.ts` helper** — Create a new file with a server-side function `getChildrenByRoom()` that:
+   - Creates Supabase server client via `createClient(await cookies())`
+   - Queries `children` joined with `rooms` (via `room_id` FK)
+   - Filters by `status = 'active'`
+   - Returns data grouped by room
+   - Verification: function compiles, `npm run build` passes
+
+2. **Create `lib/ui/child-formatters.ts` helper** — Create utility functions for deriving UI fields:
+   - `calculateAge(birthDate: Date): string`
+   - `formatBirthday(date: Date): string` — "DD mon YYYY" (e.g., "12 mar 2022")
+   - `formatEnrollmentDate(date: Date): string` — "mon YYYY" (e.g., "feb 2025")
+   - `getInitials(fullName: string): string` — first letter
+   - `getAvatarColors(name: string): { bg: string; text: string }`
+   - `mapChildToUI(child: DBChildRow): ChildUI` — combines all above
+   - Verification: functions compile, `npm run build` passes
+
+3. **Update `components/kids/kid-card.tsx` to accept `ChildUI` type** — The existing `KidCard` component receives a `Child` from mock data. Update its props to accept the new `ChildUI` type (or a shared interface both mock and real data can use). Keep all visual rendering unchanged.
+   - Verification: `npm run build` passes, no type errors
+
+4. **Add Server Actions in `app/actions.ts`** — Create two server actions:
+   - `getRooms()` — fetches all rooms from `rooms` table, returns `{ id, name }[]` for the dropdown
+   - `createChild(input)` — inserts a new child into `children` table with `full_name`, `birth_date`, `room_id`, `enrolled_at` (today), `medical_notes`, `allergy_tags`, `photo_consent`, `status = 'active'`. Calls `revalidatePath("/kids")` after successful insert.
+   - Verification: functions compile, `npm run build` passes
+
+5. **Convert `app/(dashboard)/kids/page.tsx` to server component** — Remove `"use client"`, make it an `async` server component:
+   - Call `getChildrenByRoom()` to fetch real data
+   - Keep search as a client component wrapper (extract search + state into a `<KidsClientWrapper>` or use `useSearchParams` pattern)
+   - Render rooms grouped by name, each with its children grid
+   - Show empty state message when no children exist
+   - Keep "Agregar niño" button (now calls `createChild` server action on save)
+   - Verification: `/kids` loads with real data from Supabase, search works, empty state shows when no children, adding a child persists to DB and refreshes the page
+
+6. **Update `components/kids/add-child-modal.tsx`** — Connect modal to real data:
+   - Fetch rooms from `getRooms()` on open for the sala dropdown (replaces hardcoded options)
+   - Call `createChild()` on "Guardar" with form data (name, parsed birth date, selected room, allergy tags, medical notes)
+   - Show loading state ("Guardando...") and server error messages
+   - Disable inputs while saving, clear form on success
+   - Verification: child is created in DB, page refreshes with new child visible
+
+7. **Remove mock data import from `/kids` page** — Remove the `import { children } from "@/data/mock/kids"` line. The mock file stays untouched (other pages still use it).
+   - Verification: `/kids` page no longer references mock data, `npm run lint` + `npm run build` pass
+
+8. **Verification** — `npm run lint` + `npm run build` pass; Playwright screenshots at 1440px showing rooms grouped with children (or empty state if no seed data); adding a child via modal persists to DB and appears on page.
+
+---
+
+## Acceptance Criteria
+
+- [x] `npm run lint` passes with no errors
+- [x] `npm run build` passes with no errors
+- [x] `/kids` page is a server component (no `"use client"` at top level)
+- [x] `/kids` page does not import from `@/data/mock/kids`
+- [x] `rooms` table is queried from Supabase (not hardcoded)
+- [x] `children` table is queried from Supabase (not hardcoded)
+- [x] Only `status = 'active'` children are displayed
+- [x] Children are grouped by room in the UI
+- [x] Room names come from the database (not hardcoded "SALA SOLES")
+- [x] `age` is calculated from `birth_date` (not from mock data)
+- [x] `initials` is derived from `full_name` (first letter)
+- [x] `avatarColor`/`avatarTextColor` are generated deterministically from name
+- [x] Search filter works across all children regardless of room
+- [x] Empty state (0 children) shows a friendly message instead of empty grid
+- [x] "Agregar niño" button creates a real record in `children` table via server action
+- [x] Room dropdown in modal is populated from `rooms` table (not hardcoded)
+- [x] `revalidatePath("/kids")` is called after successful child creation
+- [x] Form shows loading state and server error messages during save
+- [x] `data/mock/kids.ts` file is not modified
+- [x] `app/(dashboard)/kids/[id]/page.tsx` is not modified
+- [x] `components/kids/kid-card.tsx` visual rendering is unchanged
+- [x] All new code is in English (variable names, functions, comments)
+
+---
+
+## Decisions
+
+- **Yes:** Server component for data fetching — follows Next.js App Router patterns, enables direct Supabase queries without API routes
+- **Yes:** Client wrapper for search state — search requires `useState`, so it stays in a client sub-component while data fetching is server-side
+- **Yes:** Derive UI fields on frontend — `age`, `initials`, `avatarColor` are presentation-only, no need to store in DB
+- **Yes:** Filter by `status = 'active'` — archived children should not appear in the main list
+- **Yes:** Real DB writes from "Agregar niño" modal — Server Actions (`createChild`, `getRooms`) in `app/actions.ts` handle inserts and room fetching
+- **No:** Seed data for children — user explicitly requested no seed; UI must handle empty state gracefully
+- **No:** Changes to `/kids/[id]` — deferred to a future spec
+
+---
+
+## Identified Risks
+
+| Risk                                               | Mitigation                                                                                             |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `children` table is empty — page shows nothing     | Empty state component with friendly message and CTA to add first child                                 |
+| RLS policies block reads for current user          | Verify with Supabase MCP that authenticated user can read rooms/children in their daycare              |
+| Date formatting differs from mock (Spanish months) | Use `Intl.DateTimeFormat('es-ES', { ... })` for Spanish month names                                    |
+| `KidCard` component expects mock `Child` type      | Create a shared `ChildUI` interface that both mock and real data conform to, or update `KidCard` props |
+
+---
+
+## What is **not** in this spec
+
+- `/kids/[id]` profile page — still uses mock data
+- "Editar" button functionality
+- `parent_children` table or linked parents
+- `invitations` table
+- Photo/avatar upload for children
+- Room management (add/edit/delete rooms)
+- Any changes to mock data files
+
+Each one of those, if it lands, goes in its own spec.
+
+---
+
+## Verification Log
+
+**Date:** 2026-09-18
+**Verifier:** @spec-verifier
+**Result:** 22/22 Pass ✅
+
+| Method                      | Details                                                                        |
+| --------------------------- | ------------------------------------------------------------------------------ |
+| `npm run lint`              | No errors                                                                      |
+| `npm run build`             | Compiled successfully, TypeScript passed                                       |
+| Playwright (desktop 1440px) | Rooms grouped with children, search works, modal creates child, page refreshes |
+| Playwright (mobile 375px)   | Responsive layout verified                                                     |
+| Playwright (empty state)    | Friendly "No hay niños registrados" message with CTA                           |
+| Supabase DB                 | Child persisted with correct fields; status filter verified                    |
+| `git diff`                  | No changes to mock data, `[id]/page.tsx`, or `kid-card.tsx`                    |
+| Grep                        | All identifiers in English; Spanish only in UI copy (correct)                  |
+
+**Screenshots:** `.playwright-mcp/spec-11-connect-kids-to-db/`
+
+- `desktop-kids-page.png` — desktop view with rooms and children
+- `mobile-kids-page.png` — mobile responsive view
+- `empty-state-kids-page.png` — empty state with friendly message

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createChild, getRooms, type RoomOption } from "@/app/actions";
 
 interface AddChildModalProps {
   open: boolean;
@@ -14,13 +15,25 @@ function formatDateInput(value: string): string {
   return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
 }
 
+function parseBirthdayToISO(formatted: string): string {
+  const digits = formatted.replace(/\D/g, "");
+  if (digits.length !== 8) return "";
+  const day = digits.slice(0, 2);
+  const month = digits.slice(2, 4);
+  const year = digits.slice(4, 8);
+  return `${year}-${month}-${day}`;
+}
+
 export function AddChildModal({ open, onClose }: AddChildModalProps) {
   const [name, setName] = useState("");
   const [birthday, setBirthday] = useState("");
-  const [classroom, setClassroom] = useState("");
+  const [roomId, setRoomId] = useState("");
+  const [rooms, setRooms] = useState<RoomOption[]>([]);
   const [allergies, setAllergies] = useState("");
   const [medicalNotes, setMedicalNotes] = useState("");
   const [errors, setErrors] = useState<Record<string, boolean>>({});
+  const [saving, setSaving] = useState(false);
+  const [serverError, setServerError] = useState("");
 
   const nameRef = useRef<HTMLInputElement>(null);
 
@@ -43,22 +56,63 @@ export function AddChildModal({ open, onClose }: AddChildModalProps) {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [open, onClose]);
 
+  useEffect(() => {
+    if (open && rooms.length === 0) {
+      getRooms().then(setRooms);
+    }
+  }, [open, rooms.length]);
+
   const handleBirthdayChange = (raw: string) => {
     setBirthday(formatDateInput(raw));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    setServerError("");
     const newErrors: Record<string, boolean> = {};
     if (!name.trim()) newErrors.name = true;
     if (!birthday.trim()) newErrors.birthday = true;
-    if (!classroom) newErrors.classroom = true;
+    if (!roomId) newErrors.roomId = true;
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
 
+    const isoBirthday = parseBirthdayToISO(birthday);
+    if (!isoBirthday) {
+      setErrors({ birthday: true });
+      setServerError("La fecha de nacimiento no es válida.");
+      return;
+    }
+
     setErrors({});
+    setSaving(true);
+
+    const allergyTags = allergies
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean);
+
+    const result = await createChild({
+      fullName: name,
+      birthDate: isoBirthday,
+      roomId,
+      allergyTags,
+      medicalNotes,
+    });
+
+    setSaving(false);
+
+    if (result.error) {
+      setServerError(result.error);
+      return;
+    }
+
+    setName("");
+    setBirthday("");
+    setRoomId("");
+    setAllergies("");
+    setMedicalNotes("");
     onClose();
   };
 
@@ -81,7 +135,8 @@ export function AddChildModal({ open, onClose }: AddChildModalProps) {
           <button
             type="button"
             onClick={onClose}
-            className="cursor-pointer text-[15px] font-bold text-[#94887B] transition-colors hover:text-[#7A6F64] active:text-[#6B6158]"
+            disabled={saving}
+            className="cursor-pointer text-[15px] font-bold text-[#94887B] transition-colors hover:text-[#7A6F64] active:text-[#6B6158] disabled:opacity-50"
           >
             Cancelar
           </button>
@@ -91,9 +146,10 @@ export function AddChildModal({ open, onClose }: AddChildModalProps) {
           <button
             type="button"
             onClick={handleSave}
-            className="cursor-pointer text-[15px] font-extrabold text-[#D9583C] transition-colors hover:text-[#C44A2E] active:text-[#B03F25]"
+            disabled={saving}
+            className="cursor-pointer text-[15px] font-extrabold text-[#D9583C] transition-colors hover:text-[#C44A2E] active:text-[#B03F25] disabled:opacity-50"
           >
-            Guardar
+            {saving ? "Guardando..." : "Guardar"}
           </button>
         </div>
 
@@ -112,7 +168,8 @@ export function AddChildModal({ open, onClose }: AddChildModalProps) {
               if (errors.name) setErrors((prev) => ({ ...prev, name: false }));
             }}
             placeholder="Ej. Martina López"
-            className={`mb-[18px] w-full rounded-[14px] border-[1.5px] bg-white px-4 py-3 text-[15px] text-cocoa placeholder:text-[#B6A99B] ${
+            disabled={saving}
+            className={`mb-[18px] w-full rounded-[14px] border-[1.5px] bg-white px-4 py-3 text-[15px] text-cocoa placeholder:text-[#B6A99B] disabled:opacity-50 ${
               errors.name
                 ? "border-[#D9583C]"
                 : "border-[#EADFD0] focus:border-[#D9583C]"
@@ -131,7 +188,8 @@ export function AddChildModal({ open, onClose }: AddChildModalProps) {
                 onChange={(e) => handleBirthdayChange(e.target.value)}
                 placeholder="dd/mm/aaaa"
                 maxLength={10}
-                className={`w-full rounded-[14px] border-[1.5px] bg-white px-4 py-3 text-[15px] text-cocoa placeholder:text-[#B6A99B] ${
+                disabled={saving}
+                className={`w-full rounded-[14px] border-[1.5px] bg-white px-4 py-3 text-[15px] text-cocoa placeholder:text-[#B6A99B] disabled:opacity-50 ${
                   errors.birthday
                     ? "border-[#D9583C]"
                     : "border-[#EADFD0] focus:border-[#D9583C]"
@@ -144,26 +202,29 @@ export function AddChildModal({ open, onClose }: AddChildModalProps) {
               </label>
               <div className="relative">
                 <select
-                  value={classroom}
+                  value={roomId}
                   onChange={(e) => {
-                    setClassroom(e.target.value);
-                    if (errors.classroom)
-                      setErrors((prev) => ({ ...prev, classroom: false }));
+                    setRoomId(e.target.value);
+                    if (errors.roomId)
+                      setErrors((prev) => ({ ...prev, roomId: false }));
                   }}
+                  disabled={saving}
                   className={`w-full appearance-none rounded-[14px] border-[1.5px] bg-white px-4 py-3 pr-10 text-[15px] text-cocoa ${
-                    !classroom ? "text-[#B6A99B]" : ""
+                    !roomId ? "text-[#B6A99B]" : ""
                   } ${
-                    errors.classroom
+                    errors.roomId
                       ? "border-[#D9583C]"
                       : "border-[#EADFD0] focus:border-[#D9583C]"
-                  }`}
+                  } disabled:opacity-50`}
                 >
                   <option value="" disabled>
                     Seleccionar sala
                   </option>
-                  <option value="Soles">Soles</option>
-                  <option value="Hojas Verdes">Hojas Verdes</option>
-                  <option value="Arcoiris">Arcoiris</option>
+                  {rooms.map((room) => (
+                    <option key={room.id} value={room.id}>
+                      {room.name}
+                    </option>
+                  ))}
                 </select>
                 <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
                   <svg
@@ -192,7 +253,8 @@ export function AddChildModal({ open, onClose }: AddChildModalProps) {
             value={allergies}
             onChange={(e) => setAllergies(e.target.value)}
             placeholder="Ej. Maní, Lactosa"
-            className="mb-[18px] w-full rounded-[14px] border-[1.5px] border-[#EADFD0] bg-white px-4 py-3 text-[15px] text-cocoa placeholder:text-[#B6A99B]"
+            disabled={saving}
+            className="mb-[18px] w-full rounded-[14px] border-[1.5px] border-[#EADFD0] bg-white px-4 py-3 text-[15px] text-cocoa placeholder:text-[#B6A99B] disabled:opacity-50"
           />
 
           {/* Notas médicas */}
@@ -204,8 +266,16 @@ export function AddChildModal({ open, onClose }: AddChildModalProps) {
             onChange={(e) => setMedicalNotes(e.target.value)}
             placeholder="Indicaciones, medicación, contactos…"
             rows={3}
-            className="min-h-[90px] w-full resize-y rounded-[14px] border-[1.5px] border-[#EADFD0] bg-white px-4 py-3 text-[15px] leading-relaxed text-cocoa placeholder:text-[#B6A99B]"
+            disabled={saving}
+            className="min-h-[90px] w-full resize-y rounded-[14px] border-[1.5px] border-[#EADFD0] bg-white px-4 py-3 text-[15px] leading-relaxed text-cocoa placeholder:text-[#B6A99B] disabled:opacity-50"
           />
+
+          {/* Server error */}
+          {serverError && (
+            <div className="mt-4 rounded-[12px] bg-[#FBD8CC] px-4 py-3 text-[14px] font-semibold text-[#D9583C]">
+              {serverError}
+            </div>
+          )}
         </div>
       </div>
     </div>
