@@ -3,8 +3,9 @@
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { Sidebar } from "@/components/shared/sidebar";
 import { classroom } from "@/data/mock/feed";
+import type { CurrentUser } from "@/utils/supabase/user";
 
-export function NavShell({ children }: { children: ReactNode }) {
+export function NavShell({ children, user }: { children: ReactNode; user: CurrentUser | null }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const closeDrawer = useCallback(() => setDrawerOpen(false), []);
@@ -75,7 +76,7 @@ export function NavShell({ children }: { children: ReactNode }) {
 
       <div className="flex">
         <aside className="sticky top-0 hidden h-screen w-[248px] flex-none flex-col border-r border-linen bg-card lg:flex">
-          <Sidebar />
+          <Sidebar user={user} />
         </aside>
 
         <main className="min-w-0 flex-1">{children}</main>
@@ -100,7 +101,7 @@ export function NavShell({ children }: { children: ReactNode }) {
             drawerOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
-          <Sidebar />
+          <Sidebar user={user} />
         </div>
       </div>
     </div>

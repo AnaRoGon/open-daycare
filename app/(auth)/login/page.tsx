@@ -1,14 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useActionState } from "react";
 import Link from "next/link";
+import { login } from "@/app/actions";
+import { useRouter } from "next/navigation";
+
+const initialState: { success: boolean; error?: string } = { success: false, error: undefined };
+
+async function loginAction(_state: { success: boolean; error?: string }, formData: FormData): Promise<{ success: boolean; error?: string }> {
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
+  return login(email, password);
+}
 
 export default function LoginPage() {
   const [role] = useState<"staff" | "parent">("staff");
-  const [email, setEmail] = useState("caro@opendaycare.com");
-  const [password, setPassword] = useState("");
+  const router = useRouter();
+  const [state, formAction, isPending] = useActionState(loginAction, initialState);
 
-  // Role state tracked for future use — no UI toggle shown
+  const hasError = !!state?.error;
+
+  if (state?.success) {
+    router.push("/");
+  }
+
   void role;
 
   return (
@@ -54,44 +69,57 @@ export default function LoginPage() {
             Ingresá para ver el día de hoy.
           </p>
 
-          {/* Email */}
-          <div className="text-[11px] font-bold tracking-[0.7px] text-[#94887B] mb-2">
-            EMAIL
-          </div>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-3.5 rounded-[14px] border border-[#EADFD0] bg-white text-[#3F362E] text-sm mb-4"
-            suppressHydrationWarning
-          />
+          <form action={formAction}>
+            {/* Email */}
+            <div className="text-[11px] font-bold tracking-[0.7px] text-[#94887B] mb-2">
+              EMAIL
+            </div>
+            <input
+              type="email"
+              name="email"
+              defaultValue="caro@opendaycare.com"
+              className={`w-full px-4 py-3.5 rounded-[14px] border bg-white text-[#3F362E] text-sm mb-4 ${hasError ? "border-red-500" : "border-[#EADFD0]"}`}
+            />
 
-          {/* Password */}
-          <div className="text-[11px] font-bold tracking-[0.7px] text-[#94887B] mb-2">
-            CONTRASEÑA
-          </div>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••••"
-            className="w-full px-4 py-3.5 rounded-[14px] border border-[#EADFD0] bg-white text-[#3F362E] text-sm mb-2.5"
-          />
+            {/* Password */}
+            <div className="text-[11px] font-bold tracking-[0.7px] text-[#94887B] mb-2">
+              CONTRASEÑA
+            </div>
+            <input
+              type="password"
+              name="password"
+              placeholder="••••••••"
+              className={`w-full px-4 py-3.5 rounded-[14px] border bg-white text-[#3F362E] text-sm mb-2.5 ${hasError ? "border-red-500" : "border-[#EADFD0]"}`}
+            />
 
-          {/* Forgot password */}
-          <div className="text-right mb-5">
-            <span className="text-[#C5503A] text-sm font-bold cursor-pointer">
-              ¿Olvidaste tu contraseña?
-            </span>
-          </div>
+            {/* Error message */}
+            {hasError && (
+              <div className="flex items-center gap-2 mb-4 text-red-600 text-sm">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" />
+                  <line x1="8" y1="4" x2="8" y2="9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                  <circle cx="8" cy="11.5" r="0.75" fill="currentColor" />
+                </svg>
+                <span>{state.error}</span>
+              </div>
+            )}
 
-          {/* Login button */}
-          <button
-            type="button"
-            className="w-full py-4 rounded-[15px] bg-gradient-to-b from-[#F4977E] to-[#EE8164] text-white font-extrabold text-base cursor-pointer shadow-[0_10px_22px_-8px_rgba(238,129,100,0.7)]"
-          >
-            Iniciar sesión
-          </button>
+            {/* Forgot password */}
+            <div className="text-right mb-5">
+              <a href="#" className="text-[#C5503A] text-sm font-bold cursor-pointer">
+                ¿Olvidaste tu contraseña?
+              </a>
+            </div>
+
+            {/* Login button */}
+            <button
+              type="submit"
+              disabled={isPending}
+              className="w-full py-4 rounded-[15px] bg-gradient-to-b from-[#F4977E] to-[#EE8164] text-white font-extrabold text-base cursor-pointer shadow-[0_10px_22px_-8px_rgba(238,129,100,0.7)] disabled:opacity-60"
+            >
+              {isPending ? "Ingresando..." : "Iniciar sesión"}
+            </button>
+          </form>
 
           {/* Footer link */}
           <p className="text-center mt-6 text-[#94887B] text-[14.5px]">

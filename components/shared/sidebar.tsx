@@ -1,10 +1,12 @@
 "use client";
 
-import { classroom, user } from "@/data/mock/feed";
+import { classroom } from "@/data/mock/feed";
 import { CreatePostModal } from "@/components/feed/create-post-modal";
+import { logout } from "@/app/actions";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import type { CurrentUser } from "@/utils/supabase/user";
 
 const navItems = [
   {
@@ -84,9 +86,13 @@ const navItems = [
   },
 ];
 
-export function Sidebar() {
+export function Sidebar({ user }: { user: CurrentUser | null }) {
   const pathname = usePathname();
   const [modalOpen, setModalOpen] = useState(false);
+
+  const displayName = user?.fullName ?? "Usuario";
+  const displayRole = user?.role === "staff" ? "Maestra" : user?.role === "admin" ? "Admin" : "Familia";
+  const displayInitials = user?.initials ?? "?";
 
   return (
     <>
@@ -162,29 +168,32 @@ export function Sidebar() {
       <div className="mt-2.5 border-t border-linen pt-3.5">
         <div className="flex items-center gap-[11px] px-2 py-1.5">
           <div className="flex h-[38px] w-[38px] flex-none items-center justify-center rounded-full bg-[#F2937A] font-display text-[16px] font-semibold text-white">
-            {user.initials}
+            {displayInitials}
           </div>
           <div className="min-w-0 flex-1">
-            <div className="text-sm font-extrabold text-cocoa">{user.name}</div>
-            <div className="text-xs text-sand">{user.role}</div>
+            <div className="text-sm font-extrabold text-cocoa">{displayName}</div>
+            <div className="text-xs text-sand">{displayRole}</div>
           </div>
-          <span
-            title="Cerrar sesión"
-            className="flex h-8 w-8 flex-none cursor-pointer items-center justify-center rounded-[10px] bg-cream text-taupe"
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+          <form action={logout}>
+            <button
+              type="submit"
+              title="Cerrar sesión"
+              className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-[10px] bg-cream text-taupe"
             >
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
-            </svg>
-          </span>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
+              </svg>
+            </button>
+          </form>
         </div>
       </div>
     </div>
