@@ -24,7 +24,6 @@
 **Out of scope (for future specs):**
 
 - `/kids/[id]` profile page — still uses mock data
-- "Agregar niño" modal creating real DB records — still visual-only
 - "Editar" button functionality — still visual-only
 - `parent_children` table or linked parents on child pages
 - `invitations` table
@@ -123,18 +122,30 @@ function getAvatarColors(name: string) {
 3. **Update `components/kids/kid-card.tsx` to accept `ChildUI` type** — The existing `KidCard` component receives a `Child` from mock data. Update its props to accept the new `ChildUI` type (or a shared interface both mock and real data can use). Keep all visual rendering unchanged.
    - Verification: `npm run build` passes, no type errors
 
-4. **Convert `app/(dashboard)/kids/page.tsx` to server component** — Remove `"use client"`, make it an `async` server component:
+4. **Add Server Actions in `app/actions.ts`** — Create two server actions:
+   - `getRooms()` — fetches all rooms from `rooms` table, returns `{ id, name }[]` for the dropdown
+   - `createChild(input)` — inserts a new child into `children` table with `full_name`, `birth_date`, `room_id`, `enrolled_at` (today), `medical_notes`, `allergy_tags`, `photo_consent`, `status = 'active'`. Calls `revalidatePath("/kids")` after successful insert.
+   - Verification: functions compile, `npm run build` passes
+
+5. **Convert `app/(dashboard)/kids/page.tsx` to server component** — Remove `"use client"`, make it an `async` server component:
    - Call `getChildrenByRoom()` to fetch real data
    - Keep search as a client component wrapper (extract search + state into a `<KidsClientWrapper>` or use `useSearchParams` pattern)
    - Render rooms grouped by name, each with its children grid
    - Show empty state message when no children exist
-   - Keep "Agregar niño" button (still opens visual-only modal for now)
-   - Verification: `/kids` loads with real data from Supabase, search works, empty state shows when no children
+   - Keep "Agregar niño" button (now calls `createChild` server action on save)
+   - Verification: `/kids` loads with real data from Supabase, search works, empty state shows when no children, adding a child persists to DB and refreshes the page
 
-5. **Remove mock data import from `/kids` page** — Remove the `import { children } from "@/data/mock/kids"` line. The mock file stays untouched (other pages still use it).
+6. **Update `components/kids/add-child-modal.tsx`** — Connect modal to real data:
+   - Fetch rooms from `getRooms()` on open for the sala dropdown (replaces hardcoded options)
+   - Call `createChild()` on "Guardar" with form data (name, parsed birth date, selected room, allergy tags, medical notes)
+   - Show loading state ("Guardando...") and server error messages
+   - Disable inputs while saving, clear form on success
+   - Verification: child is created in DB, page refreshes with new child visible
+
+7. **Remove mock data import from `/kids` page** — Remove the `import { children } from "@/data/mock/kids"` line. The mock file stays untouched (other pages still use it).
    - Verification: `/kids` page no longer references mock data, `npm run lint` + `npm run build` pass
 
-6. **Verification** — `npm run lint` + `npm run build` pass; Playwright screenshots at 1440px showing rooms grouped with children (or empty state if no seed data).
+8. **Verification** — `npm run lint` + `npm run build` pass; Playwright screenshots at 1440px showing rooms grouped with children (or empty state if no seed data); adding a child via modal persists to DB and appears on page.
 
 ---
 
@@ -154,7 +165,10 @@ function getAvatarColors(name: string) {
 - [ ] `avatarColor`/`avatarTextColor` are generated deterministically from name
 - [ ] Search filter works across all children regardless of room
 - [ ] Empty state (0 children) shows a friendly message instead of empty grid
-- [ ] "Agregar niño" button still exists and opens the modal (visual-only, no DB write)
+- [ ] "Agregar niño" button creates a real record in `children` table via server action
+- [ ] Room dropdown in modal is populated from `rooms` table (not hardcoded)
+- [ ] `revalidatePath("/kids")` is called after successful child creation
+- [ ] Form shows loading state and server error messages during save
 - [ ] `data/mock/kids.ts` file is not modified
 - [ ] `app/(dashboard)/kids/[id]/page.tsx` is not modified
 - [ ] `components/kids/kid-card.tsx` visual rendering is unchanged
@@ -168,9 +182,9 @@ function getAvatarColors(name: string) {
 - **Yes:** Client wrapper for search state — search requires `useState`, so it stays in a client sub-component while data fetching is server-side
 - **Yes:** Derive UI fields on frontend — `age`, `initials`, `avatarColor` are presentation-only, no need to store in DB
 - **Yes:** Filter by `status = 'active'` — archived children should not appear in the main list
+- **Yes:** Real DB writes from "Agregar niño" modal — Server Actions (`createChild`, `getRooms`) in `app/actions.ts` handle inserts and room fetching
 - **No:** Seed data for children — user explicitly requested no seed; UI must handle empty state gracefully
 - **No:** Changes to `/kids/[id]` — deferred to a future spec
-- **No:** Real DB writes from "Agregar niño" modal — deferred to a CRUD spec
 
 ---
 
@@ -188,7 +202,6 @@ function getAvatarColors(name: string) {
 ## What is **not** in this spec
 
 - `/kids/[id]` profile page — still uses mock data
-- "Agregar niño" creating real DB records
 - "Editar" button functionality
 - `parent_children` table or linked parents
 - `invitations` table
