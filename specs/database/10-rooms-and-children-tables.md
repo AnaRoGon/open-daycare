@@ -1,6 +1,6 @@
 # SPEC 10 — Rooms and Children Tables
 
-> **Status:** Approved
+> **Status:** Implemented
 > **Depends on:** SPEC 07 (Daycares Table), SPEC 08 (Users Table)
 > **Date:** 2026-09-18
 > **Objective:** Create the `rooms` and `children` tables in Supabase with their migrations, RLS policies, seed 3 rooms ("Soles", "Hojas Verdes", "Arcoiris"), and leave `children` empty.
@@ -130,31 +130,31 @@ CREATE POLICY "parent_read_children" ON children
 
 ## Acceptance Criteria
 
-- [ ] `npm run lint` passes with no errors
-- [ ] `npm run build` passes with no errors
-- [ ] Enum `child_status` exists with values: `active`, `archived`
-- [ ] `rooms` table exists with 4 columns: `id`, `daycare_id`, `name`, `created_at`
-- [ ] `rooms.id` is uuid PK with `gen_random_uuid()` default
-- [ ] `rooms.daycare_id` is uuid FK to `daycares(id)`, NOT NULL
-- [ ] `rooms.name` is text NOT NULL
-- [ ] `rooms.created_at` has `now()` default
-- [ ] RLS enabled on `rooms`
-- [ ] At least 2 RLS policies exist on `rooms` (staff manage, parent read)
-- [ ] 3 seed rooms exist for "Guardería Sala Soles": "Soles", "Hojas Verdes", "Arcoiris"
-- [ ] `children` table exists with 11 columns: `id`, `room_id`, `full_name`, `birth_date`, `enrolled_at`, `medical_notes`, `allergy_tags`, `photo_consent`, `status`, `created_at`, `updated_at`
-- [ ] `children.id` is uuid PK with `gen_random_uuid()` default
-- [ ] `children.room_id` is uuid FK to `rooms(id)`, NOT NULL
-- [ ] `children.status` uses `child_status` enum, NOT NULL, default `'active'`
-- [ ] `children.photo_consent` is boolean NOT NULL default `true`
-- [ ] `children.allergy_tags` is `text[]` type
-- [ ] `children.medical_notes` is text, nullable
-- [ ] `children.created_at` / `updated_at` have `now()` default
-- [ ] RLS enabled on `children`
-- [ ] At least 2 RLS policies exist on `children` (staff manage, parent read)
-- [ ] `children` table has 0 rows (no seed data)
-- [ ] No mock data files (`data/mock/`) are modified
-- [ ] No existing UI components or pages are modified
-- [ ] All column names and identifiers are in English
+- [x] `npm run lint` passes with no errors
+- [x] `npm run build` passes with no errors
+- [x] Enum `child_status` exists with values: `active`, `archived`
+- [x] `rooms` table exists with 4 columns: `id`, `daycare_id`, `name`, `created_at`
+- [x] `rooms.id` is uuid PK with `gen_random_uuid()` default
+- [x] `rooms.daycare_id` is uuid FK to `daycares(id)`, NOT NULL
+- [x] `rooms.name` is text NOT NULL
+- [x] `rooms.created_at` has `now()` default
+- [x] RLS enabled on `rooms`
+- [x] At least 2 RLS policies exist on `rooms` (staff manage, parent read)
+- [x] 3 seed rooms exist for "Guardería Sala Soles": "Soles", "Hojas Verdes", "Arcoiris"
+- [x] `children` table exists with 11 columns: `id`, `room_id`, `full_name`, `birth_date`, `enrolled_at`, `medical_notes`, `allergy_tags`, `photo_consent`, `status`, `created_at`, `updated_at`
+- [x] `children.id` is uuid PK with `gen_random_uuid()` default
+- [x] `children.room_id` is uuid FK to `rooms(id)`, NOT NULL
+- [x] `children.status` uses `child_status` enum, NOT NULL, default `'active'`
+- [x] `children.photo_consent` is boolean NOT NULL default `true`
+- [x] `children.allergy_tags` is `text[]` type
+- [x] `children.medical_notes` is text, nullable
+- [x] `children.created_at` / `updated_at` have `now()` default
+- [x] RLS enabled on `children`
+- [x] At least 2 RLS policies exist on `children` (staff manage, parent read)
+- [x] `children` table has 0 rows (no seed data)
+- [x] No mock data files (`data/mock/`) are modified
+- [x] No existing UI components or pages are modified
+- [x] All column names and identifiers are in English
 
 ---
 
