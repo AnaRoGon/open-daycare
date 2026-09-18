@@ -1,6 +1,6 @@
 # SPEC 11 — Connect Kids Page to Real Database
 
-> **Status:** Approved
+> **Status:** Implemented
 > **Depends on:** SPEC 10 (Rooms and Children Tables), SPEC 09 (Real Auth and Route Protection)
 > **Date:** 2026-09-18
 > **Objective:** Replace mock data on `/kids` with real Supabase queries to `rooms` and `children` tables, grouping children by room, deriving UI-only fields on the frontend, and handling the empty state gracefully.
@@ -151,28 +151,28 @@ function getAvatarColors(name: string) {
 
 ## Acceptance Criteria
 
-- [ ] `npm run lint` passes with no errors
-- [ ] `npm run build` passes with no errors
-- [ ] `/kids` page is a server component (no `"use client"` at top level)
-- [ ] `/kids` page does not import from `@/data/mock/kids`
-- [ ] `rooms` table is queried from Supabase (not hardcoded)
-- [ ] `children` table is queried from Supabase (not hardcoded)
-- [ ] Only `status = 'active'` children are displayed
-- [ ] Children are grouped by room in the UI
-- [ ] Room names come from the database (not hardcoded "SALA SOLES")
-- [ ] `age` is calculated from `birth_date` (not from mock data)
-- [ ] `initials` is derived from `full_name` (first letter)
-- [ ] `avatarColor`/`avatarTextColor` are generated deterministically from name
-- [ ] Search filter works across all children regardless of room
-- [ ] Empty state (0 children) shows a friendly message instead of empty grid
-- [ ] "Agregar niño" button creates a real record in `children` table via server action
-- [ ] Room dropdown in modal is populated from `rooms` table (not hardcoded)
-- [ ] `revalidatePath("/kids")` is called after successful child creation
-- [ ] Form shows loading state and server error messages during save
-- [ ] `data/mock/kids.ts` file is not modified
-- [ ] `app/(dashboard)/kids/[id]/page.tsx` is not modified
-- [ ] `components/kids/kid-card.tsx` visual rendering is unchanged
-- [ ] All new code is in English (variable names, functions, comments)
+- [x] `npm run lint` passes with no errors
+- [x] `npm run build` passes with no errors
+- [x] `/kids` page is a server component (no `"use client"` at top level)
+- [x] `/kids` page does not import from `@/data/mock/kids`
+- [x] `rooms` table is queried from Supabase (not hardcoded)
+- [x] `children` table is queried from Supabase (not hardcoded)
+- [x] Only `status = 'active'` children are displayed
+- [x] Children are grouped by room in the UI
+- [x] Room names come from the database (not hardcoded "SALA SOLES")
+- [x] `age` is calculated from `birth_date` (not from mock data)
+- [x] `initials` is derived from `full_name` (first letter)
+- [x] `avatarColor`/`avatarTextColor` are generated deterministically from name
+- [x] Search filter works across all children regardless of room
+- [x] Empty state (0 children) shows a friendly message instead of empty grid
+- [x] "Agregar niño" button creates a real record in `children` table via server action
+- [x] Room dropdown in modal is populated from `rooms` table (not hardcoded)
+- [x] `revalidatePath("/kids")` is called after successful child creation
+- [x] Form shows loading state and server error messages during save
+- [x] `data/mock/kids.ts` file is not modified
+- [x] `app/(dashboard)/kids/[id]/page.tsx` is not modified
+- [x] `components/kids/kid-card.tsx` visual rendering is unchanged
+- [x] All new code is in English (variable names, functions, comments)
 
 ---
 
@@ -210,3 +210,28 @@ function getAvatarColors(name: string) {
 - Any changes to mock data files
 
 Each one of those, if it lands, goes in its own spec.
+
+---
+
+## Verification Log
+
+**Date:** 2026-09-18
+**Verifier:** @spec-verifier
+**Result:** 22/22 Pass ✅
+
+| Method                      | Details                                                                        |
+| --------------------------- | ------------------------------------------------------------------------------ |
+| `npm run lint`              | No errors                                                                      |
+| `npm run build`             | Compiled successfully, TypeScript passed                                       |
+| Playwright (desktop 1440px) | Rooms grouped with children, search works, modal creates child, page refreshes |
+| Playwright (mobile 375px)   | Responsive layout verified                                                     |
+| Playwright (empty state)    | Friendly "No hay niños registrados" message with CTA                           |
+| Supabase DB                 | Child persisted with correct fields; status filter verified                    |
+| `git diff`                  | No changes to mock data, `[id]/page.tsx`, or `kid-card.tsx`                    |
+| Grep                        | All identifiers in English; Spanish only in UI copy (correct)                  |
+
+**Screenshots:** `.playwright-mcp/spec-11-connect-kids-to-db/`
+
+- `desktop-kids-page.png` — desktop view with rooms and children
+- `mobile-kids-page.png` — mobile responsive view
+- `empty-state-kids-page.png` — empty state with friendly message
