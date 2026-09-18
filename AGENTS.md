@@ -47,6 +47,21 @@ Large features go through the spec skills in `.agents/skills/` (tracked by `skil
 - Context7: Use this MCP to fetch up-to-date framework documentation.
 - Supabase: Use the Supabase MCP for all database interactions (migrations, queries, edge functions, logs, advisories). Before making schema changes, inspect existing tables with `supabase_list_tables`. For debugging, start by reading project logs and security/performance advisories.
 
+## Supabase Client Integration
+
+The app uses `@supabase/supabase-js` and `@supabase/ssr` for database interactions from Next.js. Client helpers live in `utils/supabase/`:
+
+- `utils/supabase/server.ts` — `createClient(cookieStore)` for Server Components and Server Actions. Uses `createServerClient` from `@supabase/ssr` with cookie-based session handling.
+- `utils/supabase/client.ts` — `createClient()` for Client Components. Uses `createBrowserClient` from `@supabase/ssr`.
+- `utils/supabase/middleware.ts` — `createClient(request)` for Next.js middleware. Refreshes sessions and propagates cookie changes to the response.
+
+**Usage pattern:**
+
+- Server Components: import `createClient` from `@/utils/supabase/server`, pass `await cookies()` to it.
+- Client Components: import `createClient` from `@/utils/supabase/client`, call it directly.
+- Middleware: import `createClient` from `@/utils/supabase/middleware`, pass the `NextRequest`.
+- Never hardcode Supabase URL or keys — always use `process.env.NEXT_PUBLIC_SUPABASE_URL` and `process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` from `.env.local`.
+
 ## Database Rules
 
 **Always use migrations for any database change.** This is non-negotiable.
