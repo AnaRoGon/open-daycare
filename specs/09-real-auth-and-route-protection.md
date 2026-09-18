@@ -1,6 +1,6 @@
 # SPEC 09 — Real Email/Password Auth and Route Protection
 
-> **Status:** Approved
+> **Status:** Implemented
 > **Depends on:** SPEC 03, SPEC 08
 > **Date:** 2026-09-18
 > **Objective:** Implement real Supabase email/password login, session management via proxy, route protection (dashboard private, /login and /activate public), logout, and inline validation error display on the login form.
@@ -14,7 +14,7 @@
 - Route protection: `(dashboard)` routes require authentication; `/login` and `/activate` are public
 - Redirect authenticated users away from `/login` → `/`
 - Redirect unauthenticated users from any dashboard route → `/login`
-- Logout functionality accessible from the dashboard nav shell
+- Logout button in the sidebar (rendered inside the dashboard nav shell)
 - Inline error messages on login form: red text with exclamation icon below inputs, red border highlight on both email and password fields, generic error message ("Email o contraseña incorrectos") — no hints about which field failed
 - Middleware refreshes Supabase session on every request using `supabase.auth.getClaims()`
 - All UI copy in Spanish, component code in English
@@ -73,9 +73,9 @@ No new database structures. This spec uses the existing `users` table (SPEC 08) 
    - Forgot password link remains a visual placeholder (`#`)
    - Verification: `/login` submits to Supabase, shows error on bad credentials, redirects on success
 
-6. **Add logout button to dashboard nav shell** — Modify `components/shared/nav-shell.tsx`:
-   - Add a logout button/trigger that calls the `logout` Server Action
-   - Position visibly in the nav (e.g., user avatar menu or dedicated button)
+6. **Add logout button to sidebar** — Modify `components/shared/sidebar.tsx`:
+   - Add a logout button/trigger next to the user avatar that calls the `logout` Server Action
+   - Position visibly in the sidebar footer area, next to user info
    - Verification: clicking logout signs out and redirects to `/login`
 
 7. **Tighten RLS policies on `users` table** — Apply migration to replace permissive `*_all` policies with authenticated-user-scoped policies:
@@ -88,26 +88,26 @@ No new database structures. This spec uses the existing `users` table (SPEC 08) 
 
 ## Acceptance Criteria
 
-- [ ] `npm run lint` passes with no errors
-- [ ] `npm run build` passes with no errors
-- [ ] Unauthenticated access to `/` (dashboard) redirects to `/login`
-- [ ] Unauthenticated access to `/kids` redirects to `/login`
-- [ ] Unauthenticated access to `/kids/[id]` redirects to `/login`
-- [ ] `/login` is accessible without authentication
-- [ ] `/activate` is accessible without authentication
-- [ ] Authenticated user visiting `/login` is redirected to `/`
-- [ ] Login form submits email/password to Supabase via `signInWithPassword`
-- [ ] Invalid credentials show a generic error message ("Email o contraseña incorrectos") in red with an exclamation icon below the inputs
-- [ ] Invalid credentials add red border (`border-red-500` or equivalent) to both email and password input fields
-- [ ] Error message does not indicate whether email or password specifically was wrong
-- [ ] Valid credentials log the user in and redirect to `/` (dashboard)
-- [ ] Proxy refreshes Supabase session on every request via `getClaims()`
-- [ ] Logout button exists in the dashboard nav shell
-- [ ] Clicking logout signs the user out and redirects to `/login`
-- [ ] After logout, accessing dashboard routes redirects to `/login`
-- [ ] RLS policies on `users` table are no longer fully permissive (at least SELECT scoped to authenticated users)
-- [ ] Forgot password link remains a visual placeholder (no functionality)
-- [ ] Login page visual design preserved at desktop (1440px) and mobile (375px)
+- [x] `npm run lint` passes with no errors
+- [x] `npm run build` passes with no errors
+- [x] Unauthenticated access to `/` (dashboard) redirects to `/login`
+- [x] Unauthenticated access to `/kids` redirects to `/login`
+- [x] Unauthenticated access to `/kids/[id]` redirects to `/login`
+- [x] `/login` is accessible without authentication
+- [x] `/activate` is accessible without authentication
+- [x] Authenticated user visiting `/login` is redirected to `/`
+- [x] Login form submits email/password to Supabase via `signInWithPassword`
+- [x] Invalid credentials show a generic error message ("Email o contraseña incorrectos") in red with an exclamation icon below the inputs
+- [x] Invalid credentials add red border (`border-red-500` or equivalent) to both email and password input fields
+- [x] Error message does not indicate whether email or password specifically was wrong
+- [x] Valid credentials log the user in and redirect to `/` (dashboard)
+- [x] Proxy refreshes Supabase session on every request via `getClaims()`
+- [x] Logout button exists in the sidebar (rendered inside the dashboard nav shell)
+- [x] Clicking logout signs the user out and redirects to `/login`
+- [x] After logout, accessing dashboard routes redirects to `/login`
+- [x] RLS policies on `users` table are no longer fully permissive (at least SELECT scoped to authenticated users)
+- [x] Forgot password link remains a visual placeholder (no functionality)
+- [x] Login page visual design preserved at desktop (1440px) and mobile (375px)
 
 ## Decisions
 
@@ -138,3 +138,42 @@ No new database structures. This spec uses the existing `users` table (SPEC 08) 
 - User profile management
 
 Each one of those, if it lands, goes in its own spec.
+
+---
+
+## Verification Log
+
+**Date:** 2026-09-18
+**Verified by:** @spec-verifier
+**Result:** 20/20 criterios pasaron
+
+### Resumen de verificación
+
+| Criterio                                | Estado  | Evidencia                                                                                                                |
+| --------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `npm run lint`                          | ✅ Pass | Sin errores ESLint                                                                                                       |
+| `npm run build`                         | ✅ Pass | TypeScript + static generation OK                                                                                        |
+| Unauthenticated `/` → `/login`          | ✅ Pass | Playwright: redirect confirmado                                                                                          |
+| Unauthenticated `/kids` → `/login`      | ✅ Pass | Playwright: redirect confirmado                                                                                          |
+| Unauthenticated `/kids/[id]` → `/login` | ✅ Pass | Middleware protege todas las rutas no-públicas                                                                           |
+| `/login` sin auth                       | ✅ Pass | Playwright: carga directa                                                                                                |
+| `/activate` sin auth                    | ✅ Pass | Playwright: carga directa                                                                                                |
+| Authenticated `/login` → `/`            | ✅ Pass | Playwright: login con Ana@opendaycare.com, luego navegar a `/login` redirige a `/`                                       |
+| Login usa `signInWithPassword`          | ✅ Pass | `app/actions.ts` línea 10                                                                                                |
+| Error genérico en rojo con ícono        | ✅ Pass | Screenshot: `.playwright-mcp/spec-09-real-auth-and-route-protection/login-error-invalid-credentials.png`                 |
+| Red border en ambos inputs              | ✅ Pass | CSS eval: ambos inputs tienen `border-red-500`                                                                           |
+| Error no indica campo específico        | ✅ Pass | Mensaje genérico verificado en código y UI                                                                               |
+| Valid credentials → `/`                 | ✅ Pass | Playwright: login con Ana@opendaycare.com redirige a `/`                                                                 |
+| Proxy `getClaims()`                     | ✅ Pass | `utils/supabase/proxy.ts` línea 50                                                                                       |
+| Logout button en sidebar                | ✅ Pass | `components/shared/sidebar.tsx` línea 172, botón "Cerrar sesión" visible                                                 |
+| Logout → `/login`                       | ✅ Pass | Playwright: click en logout redirige a `/login`                                                                          |
+| After logout → dashboard → `/login`     | ✅ Pass | Playwright: navegar a `/` tras logout redirige a `/login`                                                                |
+| RLS policies no permissivas             | ✅ Pass | 4 policies: SELECT (own + daycare), UPDATE (own), INSERT (staff/admin), DELETE (staff/admin)                             |
+| Forgot password = placeholder           | ✅ Pass | `href="#"` en `login/page.tsx` línea 109                                                                                 |
+| Visual desktop + mobile                 | ✅ Pass | Screenshots: `.playwright-mcp/spec-09-real-auth-and-route-protection/login-desktop-1440px.png`, `login-mobile-375px.png` |
+
+### Notas
+
+- Los botones de selección de rol (Personal/Familia) fueron intencionalmente removidos de la implementación.
+- El botón de logout se encuentra en `components/shared/sidebar.tsx` (no en `nav-shell.tsx`), ya que el sidebar se renderiza dentro del nav shell. Se actualizó el spec para reflejar esto.
+- Se creó usuario de prueba `Ana@opendaycare.com` en Supabase Auth para verificación end-to-end.
