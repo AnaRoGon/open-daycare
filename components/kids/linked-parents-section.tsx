@@ -11,6 +11,8 @@ interface LinkedParentsSectionProps {
     initials: string;
     role: string;
     status: string;
+    avatarColor: string;
+    avatarTextColor: string;
   }[];
 }
 
@@ -30,8 +32,11 @@ export function LinkedParentsSection({
           {parents.map((parent) => (
             <div key={parent.id} className="flex items-center gap-3">
               <div
-                className="flex h-10 w-10 flex-none items-center justify-center rounded-full font-display text-[16px] font-semibold text-white"
-                style={{ backgroundColor: "#C9B6E8" }}
+                className="flex h-10 w-10 flex-none items-center justify-center rounded-full font-display text-[16px] font-semibold"
+                style={{
+                  backgroundColor: parent.avatarColor,
+                  color: parent.avatarTextColor,
+                }}
               >
                 {parent.initials}
               </div>
