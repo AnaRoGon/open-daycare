@@ -24,6 +24,33 @@ export interface RoomGroupDB {
   children: DBChildRow[];
 }
 
+export interface PendingInvitationDB {
+  id: string;
+  full_name: string;
+  relationship: string;
+  status: string;
+  email: string;
+}
+
+export async function getPendingInvitations(
+  childId: string,
+): Promise<PendingInvitationDB[]> {
+  const supabase = createClient(await cookies());
+
+  const { data, error } = await supabase
+    .from("invitations")
+    .select("id, full_name, relationship, status, email")
+    .eq("child_id", childId)
+    .eq("status", "pending");
+
+  if (error) {
+    console.error("Error fetching pending invitations:", error);
+    return [];
+  }
+
+  return data as unknown as PendingInvitationDB[];
+}
+
 export interface LinkedParentDB {
   parent_id: string;
   full_name: string;
