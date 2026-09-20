@@ -24,6 +24,44 @@ export interface RoomGroupDB {
   children: DBChildRow[];
 }
 
+export async function getChildById(
+  id: string,
+): Promise<DBChildRow | null> {
+  const supabase = createClient(await cookies());
+
+  const { data, error } = await supabase
+    .from("children")
+    .select(
+      `
+      id,
+      room_id,
+      full_name,
+      birth_date,
+      enrolled_at,
+      medical_notes,
+      allergy_tags,
+      photo_consent,
+      status,
+      created_at,
+      updated_at,
+      rooms!inner(name)
+    `,
+    )
+    .eq("id", id)
+    .eq("status", "active")
+    .single();
+
+  if (error) {
+    if (error.code === "PGRST116") {
+      return null;
+    }
+    console.error("Error fetching child by id:", error);
+    return null;
+  }
+
+  return data as unknown as DBChildRow;
+}
+
 export async function getChildrenByRoom(): Promise<RoomGroupDB[]> {
   const supabase = createClient(await cookies());
 
