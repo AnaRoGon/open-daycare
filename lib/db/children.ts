@@ -24,6 +24,44 @@ export interface RoomGroupDB {
   children: DBChildRow[];
 }
 
+export interface LinkedParentDB {
+  parent_id: string;
+  full_name: string;
+  status: string;
+  relationship: string;
+}
+
+export async function getParentsByChildId(
+  childId: string,
+): Promise<LinkedParentDB[]> {
+  const supabase = createClient(await cookies());
+
+  const { data, error } = await supabase
+    .from("parent_children")
+    .select(
+      `
+      parent_id,
+      relationship,
+      users!inner(full_name, status)
+    `,
+    )
+    .eq("child_id", childId);
+
+  if (error) {
+    console.error("Error fetching parents for child:", error);
+    return [];
+  }
+
+  const rows = data as unknown as { parent_id: string; relationship: string; users: { full_name: string; status: string } }[];
+
+  return rows.map((row) => ({
+    parent_id: row.parent_id,
+    full_name: row.users.full_name,
+    status: row.users.status,
+    relationship: row.relationship,
+  }));
+}
+
 export async function getChildById(
   id: string,
 ): Promise<DBChildRow | null> {
