@@ -24,6 +24,109 @@ export interface RoomGroupDB {
   children: DBChildRow[];
 }
 
+export interface PendingInvitationDB {
+  id: string;
+  full_name: string;
+  relationship: string;
+  status: string;
+  email: string;
+}
+
+export async function getPendingInvitations(
+  childId: string,
+): Promise<PendingInvitationDB[]> {
+  const supabase = createClient(await cookies());
+
+  const { data, error } = await supabase
+    .from("invitations")
+    .select("id, full_name, relationship, status, email")
+    .eq("child_id", childId)
+    .eq("status", "pending");
+
+  if (error) {
+    console.error("Error fetching pending invitations:", error);
+    return [];
+  }
+
+  return data as unknown as PendingInvitationDB[];
+}
+
+export interface LinkedParentDB {
+  parent_id: string;
+  full_name: string;
+  status: string;
+  relationship: string;
+}
+
+export async function getParentsByChildId(
+  childId: string,
+): Promise<LinkedParentDB[]> {
+  const supabase = createClient(await cookies());
+
+  const { data, error } = await supabase
+    .from("parent_children")
+    .select(
+      `
+      parent_id,
+      relationship,
+      users!inner(full_name, status)
+    `,
+    )
+    .eq("child_id", childId);
+
+  if (error) {
+    console.error("Error fetching parents for child:", error);
+    return [];
+  }
+
+  const rows = data as unknown as { parent_id: string; relationship: string; users: { full_name: string; status: string } }[];
+
+  return rows.map((row) => ({
+    parent_id: row.parent_id,
+    full_name: row.users.full_name,
+    status: row.users.status,
+    relationship: row.relationship,
+  }));
+}
+
+export async function getChildById(
+  id: string,
+): Promise<DBChildRow | null> {
+  const supabase = createClient(await cookies());
+
+  const { data, error } = await supabase
+    .from("children")
+    .select(
+      `
+      id,
+      room_id,
+      full_name,
+      birth_date,
+      enrolled_at,
+      medical_notes,
+      allergy_tags,
+      photo_consent,
+      status,
+      created_at,
+      updated_at,
+      rooms!inner(name)
+    `,
+    )
+    .eq("id", id)
+    .eq("status", "active")
+    .single();
+
+  if (error) {
+    if (error.code === "PGRST116") {
+      return null;
+    }
+    console.error("Error fetching child by id:", error);
+    return null;
+  }
+
+  return data as unknown as DBChildRow;
+}
+
 export async function getChildrenByRoom(): Promise<RoomGroupDB[]> {
   const supabase = createClient(await cookies());
 
