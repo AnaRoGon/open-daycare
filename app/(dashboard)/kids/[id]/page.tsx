@@ -1,7 +1,16 @@
-import { children } from "@/data/mock/kids";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { LinkedParentsSection } from "@/components/kids/linked-parents-section";
+import {
+  getChildById,
+  getParentsByChildId,
+  getPendingInvitations,
+} from "@/lib/db/children";
+import {
+  mapChildToUI,
+  mapParentToUI,
+  mapInvitationToUI,
+} from "@/lib/ui/child-formatters";
 
 interface KidsProfileProps {
   params: Promise<{ id: string }>;
@@ -9,11 +18,22 @@ interface KidsProfileProps {
 
 export default async function KidsProfile({ params }: KidsProfileProps) {
   const { id } = await params;
-  const child = children.find((c) => c.id === id);
+
+  const [child, parents, invitations] = await Promise.all([
+    getChildById(id),
+    getParentsByChildId(id),
+    getPendingInvitations(id),
+  ]);
 
   if (!child) {
     notFound();
   }
+
+  const uiChild = mapChildToUI(child);
+  const uiParents = [
+    ...parents.map(mapParentToUI),
+    ...invitations.map(mapInvitationToUI),
+  ];
 
   return (
     <div className="mx-auto w-full max-w-[820px] px-5 pb-20 pt-[34px] lg:px-10">
@@ -44,18 +64,18 @@ export default async function KidsProfile({ params }: KidsProfileProps) {
               <div
                 className="flex h-[84px] w-[84px] flex-none items-center justify-center rounded-full font-display text-[34px] font-semibold"
                 style={{
-                  backgroundColor: child.avatarColor,
-                  color: child.avatarTextColor,
+                  backgroundColor: uiChild.avatarColor,
+                  color: uiChild.avatarTextColor,
                 }}
               >
-                {child.initials}
+                {uiChild.initials}
               </div>
               <div className="flex-1">
                 <h1 className="font-display m-0 text-[28px] font-semibold text-cocoa">
-                  {child.name}
+                  {uiChild.name}
                 </h1>
                 <p className="m-0 mt-[3px] text-[15px] text-taupe">
-                  {child.age} &middot; Sala {child.classroom}
+                  {uiChild.age} &middot; Sala {uiChild.classroom}
                 </p>
               </div>
             </div>
@@ -67,7 +87,7 @@ export default async function KidsProfile({ params }: KidsProfileProps) {
             </button>
           </div>
 
-          {child.allergy && (
+          {uiChild.allergy && (
             <div className="flex gap-[14px] rounded-[16px] bg-[#FBDAD6] p-4">
               <div className="flex h-10 w-10 flex-none items-center justify-center rounded-[11px] bg-[#F4A8A0]">
                 <svg
@@ -89,7 +109,7 @@ export default async function KidsProfile({ params }: KidsProfileProps) {
                   Alergias y notas
                 </div>
                 <div className="text-[14.5px] leading-relaxed text-[#B25249]">
-                  {child.allergyNotes}
+                  {uiChild.allergyNotes}
                 </div>
               </div>
             </div>
@@ -101,19 +121,19 @@ export default async function KidsProfile({ params }: KidsProfileProps) {
                 Fecha de nacimiento
               </span>
               <span className="text-[14.5px] font-extrabold text-cocoa">
-                {child.birthday}
+                {uiChild.birthday}
               </span>
             </div>
             <div className="flex justify-between border-b border-[#F0E6D8] px-[18px] py-[15px]">
               <span className="text-[14.5px] text-taupe">Sala</span>
               <span className="text-[14.5px] font-extrabold text-cocoa">
-                {child.classroom}
+                {uiChild.classroom}
               </span>
             </div>
             <div className="flex justify-between px-[18px] py-[15px]">
               <span className="text-[14.5px] text-taupe">Ingreso</span>
               <span className="text-[14.5px] font-extrabold text-cocoa">
-                {child.enrollmentDate}
+                {uiChild.enrollmentDate}
               </span>
             </div>
           </div>
@@ -141,10 +161,7 @@ export default async function KidsProfile({ params }: KidsProfileProps) {
             Resumen del día
           </button>
 
-          <LinkedParentsSection
-            childName={child.name}
-            parents={child.parents}
-          />
+          <LinkedParentsSection childName={uiChild.name} parents={uiParents} />
         </div>
       </div>
     </div>
