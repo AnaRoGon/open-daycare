@@ -117,8 +117,10 @@ export function mapChildToUI(child: DBChildRow): ChildUI {
     classroom: child.rooms.name,
     birthday: formatBirthday(birthDate),
     enrollmentDate: formatEnrollmentDate(enrolledDate),
-    allergy: child.medical_notes ? "ALERGIA" : "",
-    allergyNotes: child.medical_notes ?? "",
+    allergy: child.allergy_tags && child.allergy_tags.length > 0 ? "ALERGIA" : "",
+    allergyNotes: child.allergy_tags && child.allergy_tags.length > 0
+      ? child.allergy_tags.join(", ")
+      : child.medical_notes ?? "",
     avatarColor: colors.bg,
     avatarTextColor: colors.text,
   };
