@@ -1,4 +1,5 @@
 import type { DBChildRow } from "@/lib/db/children";
+import type { LinkedParentDB, PendingInvitationDB } from "@/lib/db/children";
 
 export interface ChildUI {
   id: string;
@@ -53,6 +54,54 @@ export function getAvatarColors(name: string): { bg: string; text: string } {
     hash = name.charCodeAt(i) + ((hash << 5) - hash);
   }
   return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+}
+
+export interface ParentUI {
+  id: string;
+  name: string;
+  initials: string;
+  role: string;
+  status: string;
+  avatarColor: string;
+  avatarTextColor: string;
+}
+
+const RELATIONSHIP_LABELS: Record<string, string> = {
+  father: "Papá",
+  mother: "Mamá",
+  guardian: "Tutor",
+};
+
+export function mapParentToUI(parent: LinkedParentDB): ParentUI {
+  const colors = getAvatarColors(parent.full_name);
+  const role = RELATIONSHIP_LABELS[parent.relationship] ?? parent.relationship;
+  const status = parent.status === "active" ? "activa" : "invitación enviada";
+
+  return {
+    id: parent.parent_id,
+    name: parent.full_name,
+    initials: getInitials(parent.full_name),
+    role,
+    status,
+    avatarColor: colors.bg,
+    avatarTextColor: colors.text,
+  };
+}
+
+export function mapInvitationToUI(invitation: PendingInvitationDB): ParentUI {
+  const colors = getAvatarColors(invitation.full_name);
+  const role =
+    RELATIONSHIP_LABELS[invitation.relationship] ?? invitation.relationship;
+
+  return {
+    id: invitation.id,
+    name: invitation.full_name,
+    initials: getInitials(invitation.full_name),
+    role,
+    status: "invitación enviada",
+    avatarColor: colors.bg,
+    avatarTextColor: colors.text,
+  };
 }
 
 export function mapChildToUI(child: DBChildRow): ChildUI {
