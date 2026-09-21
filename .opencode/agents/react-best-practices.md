@@ -56,7 +56,8 @@ Key areas to review:
 | Forms          | Controlled vs uncontrolled, validation patterns, form libraries when appropriate     |
 | Performance    | Code splitting (lazy, Suspense), virtualization for large lists, avoiding re-renders |
 | Error handling | Error boundaries, graceful degradation, loading states                               |
-| Accessibility  | Semantic HTML, ARIA attributes, keyboard navigation, focus management                |
+
+> **Note:** Accessibility analysis (ARIA attributes, keyboard navigation, focus management, semantic HTML) is **explicitly excluded** from this agent's scope. Do not review or report on accessibility issues.
 
 ---
 
@@ -115,3 +116,4 @@ After applying fixes:
 - **Code in English**, UI copy in Spanish.
 - **Be conservative** - only fix actual issues, don't over-engineer.
 - **If a pattern is debatable**, present both options and let the user choose.
+- **No accessibility analysis.** Do not review or report on ARIA attributes, keyboard navigation, focus management, or semantic HTML. This is out of scope.
