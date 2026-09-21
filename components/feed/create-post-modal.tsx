@@ -1,8 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { children, AvatarColor } from "@/data/mock/kids";
 import { postTypeLabels, postTypeColors, PostType } from "@/data/mock/feed";
+import { usePostContext } from "@/contexts/post-context";
+
+const MAX_PHOTOS = 6;
 
 const avatarBgMap: Record<AvatarColor, string> = {
   [AvatarColor.Sky]: "#A9D9E8",
@@ -23,16 +26,22 @@ interface CreatePostModalProps {
 }
 
 export function CreatePostModal({ open, onClose }: CreatePostModalProps) {
+  const { addPost } = usePostContext();
   const [selectedChildren, setSelectedChildren] = useState<string[]>([]);
   const [allRoom, setAllRoom] = useState(false);
   const [selectedType, setSelectedType] = useState<PostType | null>(null);
   const [description, setDescription] = useState("");
+  const [selectedPhotos, setSelectedPhotos] = useState<string[]>([]);
+  const [typeError, setTypeError] = useState(false);
+  const [descError, setDescError] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const resetState = () => {
     setSelectedChildren([]);
     setAllRoom(false);
     setSelectedType(null);
     setDescription("");
+    setSelectedPhotos([]);
   };
 
   const handleClose = () => {
@@ -66,7 +75,74 @@ export function CreatePostModal({ open, onClose }: CreatePostModalProps) {
   };
 
   const handleTypeToggle = (type: PostType) => {
+    setTypeError(false);
     setSelectedType((prev) => (prev === type ? null : type));
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const remaining = MAX_PHOTOS - selectedPhotos.length;
+    const filesToRead = Array.from(files).slice(0, remaining);
+
+    filesToRead.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result === "string") {
+          setSelectedPhotos((prev) => [...prev, reader.result as string]);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const handleRemovePhoto = (index: number) => {
+    setSelectedPhotos((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handlePublish = () => {
+    let hasError = false;
+
+    if (!selectedType) {
+      setTypeError(true);
+      hasError = true;
+    } else {
+      setTypeError(false);
+    }
+
+    if (!description.trim()) {
+      setDescError(true);
+      hasError = true;
+    } else {
+      setDescError(false);
+    }
+
+    if (hasError) return;
+
+    const audience = allRoom
+      ? "toda la sala"
+      : selectedChildren.length === 1
+        ? `familia de ${children.find((c) => c.id === selectedChildren[0])?.name.split(" ")[0]}`
+        : selectedChildren.length > 1
+          ? `familias de ${selectedChildren.map((id) => children.find((c) => c.id === id)?.name.split(" ")[0]).join(", ")}`
+          : "toda la sala";
+
+    addPost({
+      type: selectedType!,
+      author: "Vos",
+      initials: "V",
+      audience,
+      body: description.trim(),
+      photos: selectedPhotos.length > 0 ? selectedPhotos : undefined,
+    });
+
+    resetState();
+    onClose();
   };
 
   if (!open) return null;
@@ -94,7 +170,7 @@ export function CreatePostModal({ open, onClose }: CreatePostModalProps) {
           </span>
           <button
             type="button"
-            onClick={handleClose}
+            onClick={handlePublish}
             className="cursor-pointer text-[15px] font-extrabold text-[#D9583C] transition-colors hover:text-[#C44A2E] active:text-[#B03F25]"
           >
             Publicar
@@ -148,8 +224,15 @@ export function CreatePostModal({ open, onClose }: CreatePostModalProps) {
           </div>
 
           {/* TIPO */}
-          <div className="mb-2.5 text-[12px] font-extrabold tracking-[0.7px] text-[#94887B]">
-            TIPO
+          <div className="mb-2.5 flex items-center justify-between">
+            <span className="text-[12px] font-extrabold tracking-[0.7px] text-[#94887B]">
+              TIPO
+            </span>
+            {typeError && (
+              <span className="text-[12px] font-bold text-[#D9583C]">
+                Seleccioná un tipo
+              </span>
+            )}
           </div>
           <div className="mb-[22px] flex flex-wrap gap-[9px]">
             {(Object.keys(postTypeLabels) as PostType[]).map((type) => {
@@ -174,14 +257,28 @@ export function CreatePostModal({ open, onClose }: CreatePostModalProps) {
           </div>
 
           {/* DESCRIPCIÓN */}
-          <div className="mb-2.5 text-[12px] font-extrabold tracking-[0.7px] text-[#94887B]">
-            DESCRIPCIÓN
+          <div className="mb-2.5 flex items-center justify-between">
+            <span className="text-[12px] font-extrabold tracking-[0.7px] text-[#94887B]">
+              DESCRIPCIÓN
+            </span>
+            {descError && (
+              <span className="text-[12px] font-bold text-[#D9583C]">
+                Escribí una descripción
+              </span>
+            )}
           </div>
           <textarea
             placeholder="Contá cómo le fue hoy…"
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="mb-[22px] w-full rounded-[14px] border-[1.5px] border-[#EADFD0] bg-white px-4 py-3.5 text-[15px] leading-[1.5] text-cocoa placeholder:text-[#B6A99B]"
+            onChange={(e) => {
+              setDescription(e.target.value);
+              setDescError(false);
+            }}
+            className={`mb-[22px] w-full rounded-[14px] border-[1.5px] bg-white px-4 py-3.5 text-[15px] leading-[1.5] text-cocoa placeholder:text-[#B6A99B] ${
+              descError
+                ? "border-[#D9583C]"
+                : "border-[#EADFD0]"
+            }`}
             style={{ minHeight: 120, resize: "vertical" }}
           />
 
@@ -189,38 +286,73 @@ export function CreatePostModal({ open, onClose }: CreatePostModalProps) {
           <div className="mb-2.5 text-[12px] font-extrabold tracking-[0.7px] text-[#94887B]">
             FOTOS
           </div>
-          <div className="flex gap-3">
-            <div className="flex h-[96px] w-[96px] flex-none items-center justify-center rounded-[14px] border border-[#ECE0D0] bg-[#F4ECE1] text-[#CBB89F]">
-              <svg
-                width="26"
-                height="26"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.7"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+          <div className="flex flex-wrap gap-3">
+            {selectedPhotos.map((photo, index) => (
+              <div
+                key={index}
+                className="relative h-[96px] w-[96px] flex-none overflow-hidden rounded-[14px] border border-[#ECE0D0]"
               >
-                <rect x="3" y="3" width="18" height="18" rx="2" />
-                <circle cx="9" cy="9" r="2" />
-                <path d="m21 15-3.6-3.6a2 2 0 0 0-2.8 0L6 21" />
-              </svg>
-            </div>
-            <div className="flex h-[96px] w-[96px] flex-none cursor-pointer flex-col items-center justify-center gap-1.5 rounded-[14px] border-[1.5px] border-dashed border-[#DBCDBA] bg-[#F4ECE1] text-[#B0A290]">
-              <svg
-                width="22"
-                height="22"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#C5503A"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M12 5v14M5 12h14" />
-              </svg>
-              <span className="text-[12px]">Agregar</span>
-            </div>
+                <img
+                  src={photo}
+                  alt={`Foto ${index + 1}`}
+                  className="h-full w-full object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={() => handleRemovePhoto(index)}
+                  className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-black/50 text-[14px] font-bold leading-none text-white"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+            {selectedPhotos.length < MAX_PHOTOS && (
+              <>
+                <div className="flex h-[96px] w-[96px] flex-none items-center justify-center rounded-[14px] border border-[#ECE0D0] bg-[#F4ECE1] text-[#CBB89F]">
+                  <svg
+                    width="26"
+                    height="26"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.7"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                    <circle cx="9" cy="9" r="2" />
+                    <path d="m21 15-3.6-3.6a2 2 0 0 0-2.8 0L6 21" />
+                  </svg>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex h-[96px] w-[96px] flex-none cursor-pointer flex-col items-center justify-center gap-1.5 rounded-[14px] border-[1.5px] border-dashed border-[#DBCDBA] bg-[#F4ECE1] text-[#B0A290]"
+                >
+                  <svg
+                    width="22"
+                    height="22"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#C5503A"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M12 5v14M5 12h14" />
+                  </svg>
+                  <span className="text-[12px]">Agregar</span>
+                </button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                  onChange={handleFileSelect}
+                />
+              </>
+            )}
           </div>
         </div>
       </div>

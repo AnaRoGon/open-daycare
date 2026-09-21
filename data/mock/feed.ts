@@ -36,6 +36,7 @@ export interface Post {
   audience: string;
   body: string;
   photo?: string;
+  photos?: string[];
   likes: number;
   comments: number;
 }

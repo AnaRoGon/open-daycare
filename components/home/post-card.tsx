@@ -110,7 +110,20 @@ export function PostCard({ post }: { post: Post }) {
         {post.body}
       </p>
 
-      {post.photo && (
+      {post.photos && post.photos.length > 0 ? (
+        <div className="relative mt-3.5 overflow-hidden rounded-[16px] border border-[#DBCDBA]">
+          <img
+            src={post.photos[0]}
+            alt="Foto del post"
+            className="h-[200px] w-full object-cover"
+          />
+          {post.photos.length > 1 && (
+            <div className="absolute bottom-2 right-2 rounded-md bg-black/60 px-2 py-1 text-xs font-bold text-white">
+              +{post.photos.length - 1}
+            </div>
+          )}
+        </div>
+      ) : post.photo ? (
         <div className="mt-3.5 flex h-[200px] flex-col items-center justify-center gap-2 rounded-[16px] border-[1.5px] border-dashed border-[#DBCDBA] bg-[#F4ECE1] text-[#B0A290]">
           <svg
             width="30"
@@ -128,7 +141,7 @@ export function PostCard({ post }: { post: Post }) {
           </svg>
           <span className="text-[13.5px]">{post.photo}</span>
         </div>
-      )}
+      ) : null}
 
       <div className="mt-4 flex items-center gap-[18px] border-t border-[#F0E6D8] pt-3.5">
         <span className="flex items-center gap-[7px] text-sm font-bold text-coral">
