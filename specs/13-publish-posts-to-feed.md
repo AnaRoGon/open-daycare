@@ -1,6 +1,6 @@
 # SPEC 13 — Publish Posts to Feed with Optional Photos
 
-> **Status:** Draft
+> **Status:** Approved
 > **Depends on:** SPEC 01, SPEC 06
 > **Date:** 2026-09-21
 > **Objective:** Make the create-post modal actually add posts to the feed (in-memory), with support for selecting and previewing local photos without uploading them to any server.
@@ -48,8 +48,8 @@ export interface Post {
   time: string;
   audience: string;
   body: string;
-  photo?: string;            // legacy: placeholder text (mock posts)
-  photos?: string[];         // new: array of data URLs (user-created posts)
+  photo?: string; // legacy: placeholder text (mock posts)
+  photos?: string[]; // new: array of data URLs (user-created posts)
   likes: number;
   comments: number;
 }
@@ -164,11 +164,11 @@ data/
 
 ## Identified Risks
 
-| Risk | Mitigation |
-| --- | --- |
-| Large image data URLs can consume significant memory | Limit of 6 photos; browser frees on refresh; visual-only for now |
-| `crypto.randomUUID()` not available in all browsers | Use `post-${Date.now()}-${Math.random().toString(36).slice(2, 8)}` as fallback |
-| Modal grows too tall with many selected photos | Internal scroll in the FOTOS section if more than 3 photos |
+| Risk                                                 | Mitigation                                                                     |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------ |
+| Large image data URLs can consume significant memory | Limit of 6 photos; browser frees on refresh; visual-only for now               |
+| `crypto.randomUUID()` not available in all browsers  | Use `post-${Date.now()}-${Math.random().toString(36).slice(2, 8)}` as fallback |
+| Modal grows too tall with many selected photos       | Internal scroll in the FOTOS section if more than 3 photos                     |
 
 ---
 
