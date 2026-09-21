@@ -1,7 +1,6 @@
 import { ComposeTrigger } from "@/components/home/compose-trigger";
 import { Greeting } from "@/components/home/greeting";
-import { PostCard } from "@/components/home/post-card";
-import { posts } from "@/data/mock/feed";
+import { FeedContent } from "@/components/home/feed-content";
 import { getCurrentUser } from "@/utils/supabase/user";
 
 export default async function Home() {
@@ -19,11 +18,7 @@ export default async function Home() {
         <span className="h-px flex-1 bg-[#E7DAC8]" />
       </div>
 
-      <div className="flex flex-col gap-4">
-        {posts.map((post) => (
-          <PostCard key={post.id} post={post} />
-        ))}
-      </div>
+      <FeedContent />
     </div>
   );
 }
