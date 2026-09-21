@@ -80,13 +80,12 @@ The app uses `@supabase/supabase-js` and `@supabase/ssr` for database interactio
 
 ## Agents
 
-Custom agents configured in `opencode.json`:
+Custom agents configured in `.opencode/agents/`:
 
 - `@db-migrator` — Manages Supabase database migrations. Creates, applies, and verifies migrations. Use when working with database schema changes, RLS policies, seed data, or when spec-impl detects database steps.
-
-Built-in subagents:
-
-- `@spec-verifier` — Verifies an implemented spec against its acceptance criteria. Runs `npm run lint` + `npm run build`, checks visual criteria with Playwright screenshots in `.playwright-mcp/`, and marks each criterion as `[x]` in the spec file when it passes.
+- `@react-best-practices` — Applies React best practices to specified files. Uses Context7 MCP to verify against current React documentation and recommendations. Use when you want to review or refactor React components following modern patterns.
+- `@accessibility-checker` — Checks UI components and pages against WCAG 2.2 AA accessibility standards. Uses Playwright for E2E verification (keyboard navigation, focus management, contrast, screen reader compatibility). Reports issues and applies fixes.
+- `@spec-verifier` — Verifies acceptance criteria from a spec file. Runs lint/build, uses Playwright for UI screenshots, Context7 for Next.js patterns, and vision to compare screenshots against mockups. Use when you want to validate that implemented features match their spec acceptance criteria.
 
 ## Skills
 
