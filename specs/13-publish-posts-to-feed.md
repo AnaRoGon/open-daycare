@@ -1,6 +1,6 @@
 # SPEC 13 — Publish Posts to Feed with Optional Photos
 
-> **Status:** Approved
+> **Status:** Implemented
 > **Depends on:** SPEC 01, SPEC 06
 > **Date:** 2026-09-21
 > **Objective:** Make the create-post modal actually add posts to the feed (in-memory), with support for selecting and previewing local photos without uploading them to any server.
@@ -126,28 +126,28 @@ data/
 
 ## Acceptance Criteria
 
-- [ ] `npm run lint` passes with no errors
-- [ ] `npm run build` passes with no errors
-- [ ] `data/mock/feed.ts` exports `Post` with `photos?: string[]` field
-- [ ] `contexts/post-context.tsx` exists and exports `PostProvider` and `usePostContext`
-- [ ] `PostProvider` initializes with mock posts from `feed.ts`
-- [ ] `addPost` generates a unique id, timestamp, and `likes: 0, comments: 0`
-- [ ] `app/(dashboard)/layout.tsx` wraps content with `PostProvider`
-- [ ] The feed shows mock posts on page load
-- [ ] The "Agregar" button in FOTOS opens a real file picker
-- [ ] Selected images are displayed as thumbnails in the FOTOS section
-- [ ] Each thumbnail has a remove button
-- [ ] Up to 6 photos can be selected per post
-- [ ] The "Agregar" button is hidden when 6 photos are reached
-- [ ] If no type is selected on publish, a visual message is shown
-- [ ] If description is empty on publish, a visual message is shown
-- [ ] Publishing with valid data adds the post to the feed
-- [ ] The published post appears in the feed with its type, audience, description, and photos
-- [ ] `PostCard` shows real photos when `post.photos` has elements
-- [ ] Mock posts without `photos` still show the existing dotted placeholder
-- [ ] The modal fully resets after publishing
-- [ ] Everything is kept in memory (no localStorage or DB persistence)
-- [ ] The app works correctly after a refresh (only mock posts visible)
+- [x] `npm run lint` passes with no errors
+- [x] `npm run build` passes with no errors
+- [x] `data/mock/feed.ts` exports `Post` with `photos?: string[]` field
+- [x] `contexts/post-context.tsx` exists and exports `PostProvider` and `usePostContext`
+- [x] `PostProvider` initializes with mock posts from `feed.ts`
+- [x] `addPost` generates a unique id, timestamp, and `likes: 0, comments: 0`
+- [x] `app/(dashboard)/layout.tsx` wraps content with `PostProvider`
+- [x] The feed shows mock posts on page load
+- [x] The "Agregar" button in FOTOS opens a real file picker
+- [x] Selected images are displayed as thumbnails in the FOTOS section
+- [x] Each thumbnail has a remove button
+- [x] Up to 6 photos can be selected per post
+- [x] The "Agregar" button is hidden when 6 photos are reached
+- [x] If no type is selected on publish, a visual message is shown
+- [x] If description is empty on publish, a visual message is shown
+- [x] Publishing with valid data adds the post to the feed
+- [x] The published post appears in the feed with its type, audience, description, and photos
+- [x] `PostCard` shows real photos when `post.photos` has elements
+- [x] Mock posts without `photos` still show the existing dotted placeholder
+- [x] The modal fully resets after publishing
+- [x] Everything is kept in memory (no localStorage or DB persistence)
+- [x] The app works correctly after a refresh (only mock posts visible)
 
 ---
 
@@ -181,3 +181,41 @@ data/
 - Notifications or toasts
 
 Each one of those, if it lands, goes in its own spec.
+
+---
+
+## Verification
+
+**Date:** 2026-09-21
+**Verified by:** @spec-verifier (Playwright E2E + code inspection)
+**Result:** 22/22 — All criteria passed ✅
+
+| #   | Criterion                                         | Status | Evidence                                                            |
+| --- | ------------------------------------------------- | ------ | ------------------------------------------------------------------- |
+| 1   | `npm run lint` passes                             | ✅     | 0 errors, 2 warnings (no-img-element, acceptable for data URLs)     |
+| 2   | `npm run build` passes                            | ✅     | TypeScript compiled, all pages generated                            |
+| 3   | `Post` with `photos?: string[]`                   | ✅     | `data/mock/feed.ts` line 39                                         |
+| 4   | `PostProvider` + `usePostContext` exported        | ✅     | `contexts/post-context.tsx` lines 13, 40                            |
+| 5   | Provider initializes with mock posts              | ✅     | `useState<Post[]>(mockPosts)` line 14                               |
+| 6   | `addPost` generates id, time, likes:0, comments:0 | ✅     | Lines 18-27 of post-context.tsx                                     |
+| 7   | Layout wraps with `PostProvider`                  | ✅     | `app/(dashboard)/layout.tsx` line 9                                 |
+| 8   | Feed shows mock posts on load                     | ✅     | Playwright: 3 posts visible (Mateo logro, Mateo actividad, Anuncio) |
+| 9   | "Agregar" opens real file picker                  | ✅     | Playwright: file chooser triggered on click                         |
+| 10  | Selected images as thumbnails                     | ✅     | Playwright: 2 thumbnails (96x96, object-cover) visible after upload |
+| 11  | Each thumbnail has remove button                  | ✅     | Playwright: "×" buttons visible on each thumbnail                   |
+| 12  | Up to 6 photos per post                           | ✅     | Code: `MAX_PHOTOS = 6`, slices files to remaining                   |
+| 13  | "Agregar" hidden at 6 photos                      | ✅     | Code: `{selectedPhotos.length < MAX_PHOTOS && (...)}`               |
+| 14  | Visual message if no type                         | ✅     | Playwright: "Seleccioná un tipo" shown in red                       |
+| 15  | Visual message if empty description               | ✅     | Playwright: "Escribí una descripción" + red border on textarea      |
+| 16  | Publish adds post to feed                         | ✅     | Playwright: new post appeared as first item in feed                 |
+| 17  | Post shows type, audience, description, photos    | ✅     | Playwright: LOGRO badge, "toda la sala", body text, photo visible   |
+| 18  | PostCard shows real photos                        | ✅     | Playwright: `<img>` rendered with uploaded photo                    |
+| 19  | Mock posts show dotted placeholder                | ✅     | Playwright: post-2 shows "Foto · pintando con témperas" placeholder |
+| 20  | Modal resets after publishing                     | ✅     | Playwright: reopened modal — all fields cleared                     |
+| 21  | No localStorage or DB                             | ✅     | Grep: no localStorage/sessionStorage/Supabase storage calls         |
+| 22  | Refresh shows only mock posts                     | ✅     | Playwright: hard reload → only 3 mock posts visible                 |
+
+**Screenshots saved to:** `.playwright-mcp/spec-13-publish-posts-to-feed/`
+
+- `modal-with-photos.png` — modal with 2 selected photo thumbnails
+- `published-post-in-feed.png` — feed with newly published post (LOGRO, with photo)
