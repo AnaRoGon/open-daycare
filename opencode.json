@@ -2,6 +2,12 @@
   "$schema": "https://opencode.ai/config.json",
   "formatter": true,
   "lsp": true,
+  "agent": {
+    "db-migrator": {
+      "description": "Manages Supabase database migrations. Creates, applies, and verifies migrations.",
+      "mode": "subagent"
+    }
+  },
   "command": {
     "spec": {
       "description": "Crea especificaciones de pantallas y funcionalidades",
