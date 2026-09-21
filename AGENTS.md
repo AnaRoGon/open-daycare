@@ -78,6 +78,16 @@ The app uses `@supabase/supabase-js` and `@supabase/ssr` for database interactio
 
 **Migration dependencies:** If a migration depends on another object (e.g., a table that doesn't exist yet), document the dependency in a comment and apply it after the dependency is resolved. Do not skip migrations — they must all be applied in order.
 
+## Agents
+
+Custom agents configured in `opencode.json`:
+
+- `@db-migrator` — Manages Supabase database migrations. Creates, applies, and verifies migrations. Use when working with database schema changes, RLS policies, seed data, or when spec-impl detects database steps.
+
+Built-in subagents:
+
+- `@spec-verifier` — Verifies an implemented spec against its acceptance criteria. Runs `npm run lint` + `npm run build`, checks visual criteria with Playwright screenshots in `.playwright-mcp/`, and marks each criterion as `[x]` in the spec file when it passes.
+
 ## Skills
 
 Skills installed in `.agents/skills/` (tracked by `skills-lock.json`):
@@ -87,23 +97,6 @@ Skills installed in `.agents/skills/` (tracked by `skills-lock.json`):
 - `supabase-postgres-best-practices` — Postgres best practices: schema design, migrations, RLS policies, indexes, triggers, pg_cron, pgvector, performance tuning, debugging slow queries.
 
 Use `@supabase` for any task involving Supabase. Use `@supabase-postgres-best-practices` BEFORE writing or altering anything related to Postgres (tables, columns, migrations, RLS, queries).
-
-## Spec verifier (`@spec-verifier`)
-
-Agent that verifies an implemented spec against its acceptance criteria. Invoked as `@spec-verifier @specs/NN-slug.md`.
-
-**Flow:**
-
-1. Reads the spec and extracts acceptance criteria (checklist `[ ]`).
-2. Runs `npm run lint` + `npm run build` — if either fails, criteria do not pass.
-3. For each visual/functional criterion:
-   - Uses Playwright to navigate to the corresponding route.
-   - Takes screenshots in `.playwright-mcp/` at the viewports specified by the spec (e.g. 1440px desktop, 375px mobile).
-   - Interacts with the page (clicks, keyboard, resize) as required by the criterion.
-   - If the criterion passes → marks `[x]` in the spec file.
-4. Reports results: how many passed, which failed, and why.
-
-**Screenshots:** always in `.playwright-mcp/` (gitignored), never in `references/`.
 
 ## Notes
 
