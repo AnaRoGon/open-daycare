@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { children, AvatarColor } from "@/data/mock/kids";
 import { postTypeLabels, postTypeColors, PostType } from "@/data/mock/feed";
+import { usePostContext } from "@/contexts/post-context";
 
 const MAX_PHOTOS = 6;
 
@@ -25,11 +26,14 @@ interface CreatePostModalProps {
 }
 
 export function CreatePostModal({ open, onClose }: CreatePostModalProps) {
+  const { addPost } = usePostContext();
   const [selectedChildren, setSelectedChildren] = useState<string[]>([]);
   const [allRoom, setAllRoom] = useState(false);
   const [selectedType, setSelectedType] = useState<PostType | null>(null);
   const [description, setDescription] = useState("");
   const [selectedPhotos, setSelectedPhotos] = useState<string[]>([]);
+  const [typeError, setTypeError] = useState(false);
+  const [descError, setDescError] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const resetState = () => {
@@ -71,6 +75,7 @@ export function CreatePostModal({ open, onClose }: CreatePostModalProps) {
   };
 
   const handleTypeToggle = (type: PostType) => {
+    setTypeError(false);
     setSelectedType((prev) => (prev === type ? null : type));
   };
 
@@ -100,6 +105,46 @@ export function CreatePostModal({ open, onClose }: CreatePostModalProps) {
     setSelectedPhotos((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const handlePublish = () => {
+    let hasError = false;
+
+    if (!selectedType) {
+      setTypeError(true);
+      hasError = true;
+    } else {
+      setTypeError(false);
+    }
+
+    if (!description.trim()) {
+      setDescError(true);
+      hasError = true;
+    } else {
+      setDescError(false);
+    }
+
+    if (hasError) return;
+
+    const audience = allRoom
+      ? "toda la sala"
+      : selectedChildren.length === 1
+        ? `familia de ${children.find((c) => c.id === selectedChildren[0])?.name.split(" ")[0]}`
+        : selectedChildren.length > 1
+          ? `familias de ${selectedChildren.map((id) => children.find((c) => c.id === id)?.name.split(" ")[0]).join(", ")}`
+          : "toda la sala";
+
+    addPost({
+      type: selectedType!,
+      author: "Vos",
+      initials: "V",
+      audience,
+      body: description.trim(),
+      photos: selectedPhotos.length > 0 ? selectedPhotos : undefined,
+    });
+
+    resetState();
+    onClose();
+  };
+
   if (!open) return null;
 
   return (
@@ -125,7 +170,7 @@ export function CreatePostModal({ open, onClose }: CreatePostModalProps) {
           </span>
           <button
             type="button"
-            onClick={handleClose}
+            onClick={handlePublish}
             className="cursor-pointer text-[15px] font-extrabold text-[#D9583C] transition-colors hover:text-[#C44A2E] active:text-[#B03F25]"
           >
             Publicar
@@ -179,8 +224,15 @@ export function CreatePostModal({ open, onClose }: CreatePostModalProps) {
           </div>
 
           {/* TIPO */}
-          <div className="mb-2.5 text-[12px] font-extrabold tracking-[0.7px] text-[#94887B]">
-            TIPO
+          <div className="mb-2.5 flex items-center justify-between">
+            <span className="text-[12px] font-extrabold tracking-[0.7px] text-[#94887B]">
+              TIPO
+            </span>
+            {typeError && (
+              <span className="text-[12px] font-bold text-[#D9583C]">
+                Seleccioná un tipo
+              </span>
+            )}
           </div>
           <div className="mb-[22px] flex flex-wrap gap-[9px]">
             {(Object.keys(postTypeLabels) as PostType[]).map((type) => {
@@ -205,14 +257,28 @@ export function CreatePostModal({ open, onClose }: CreatePostModalProps) {
           </div>
 
           {/* DESCRIPCIÓN */}
-          <div className="mb-2.5 text-[12px] font-extrabold tracking-[0.7px] text-[#94887B]">
-            DESCRIPCIÓN
+          <div className="mb-2.5 flex items-center justify-between">
+            <span className="text-[12px] font-extrabold tracking-[0.7px] text-[#94887B]">
+              DESCRIPCIÓN
+            </span>
+            {descError && (
+              <span className="text-[12px] font-bold text-[#D9583C]">
+                Escribí una descripción
+              </span>
+            )}
           </div>
           <textarea
             placeholder="Contá cómo le fue hoy…"
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="mb-[22px] w-full rounded-[14px] border-[1.5px] border-[#EADFD0] bg-white px-4 py-3.5 text-[15px] leading-[1.5] text-cocoa placeholder:text-[#B6A99B]"
+            onChange={(e) => {
+              setDescription(e.target.value);
+              setDescError(false);
+            }}
+            className={`mb-[22px] w-full rounded-[14px] border-[1.5px] bg-white px-4 py-3.5 text-[15px] leading-[1.5] text-cocoa placeholder:text-[#B6A99B] ${
+              descError
+                ? "border-[#D9583C]"
+                : "border-[#EADFD0]"
+            }`}
             style={{ minHeight: 120, resize: "vertical" }}
           />
 
