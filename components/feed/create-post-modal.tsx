@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { children, AvatarColor } from "@/data/mock/kids";
 import { postTypeLabels, postTypeColors, PostType } from "@/data/mock/feed";
+
+const MAX_PHOTOS = 6;
 
 const avatarBgMap: Record<AvatarColor, string> = {
   [AvatarColor.Sky]: "#A9D9E8",
@@ -27,12 +29,15 @@ export function CreatePostModal({ open, onClose }: CreatePostModalProps) {
   const [allRoom, setAllRoom] = useState(false);
   const [selectedType, setSelectedType] = useState<PostType | null>(null);
   const [description, setDescription] = useState("");
+  const [selectedPhotos, setSelectedPhotos] = useState<string[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const resetState = () => {
     setSelectedChildren([]);
     setAllRoom(false);
     setSelectedType(null);
     setDescription("");
+    setSelectedPhotos([]);
   };
 
   const handleClose = () => {
@@ -67,6 +72,32 @@ export function CreatePostModal({ open, onClose }: CreatePostModalProps) {
 
   const handleTypeToggle = (type: PostType) => {
     setSelectedType((prev) => (prev === type ? null : type));
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const remaining = MAX_PHOTOS - selectedPhotos.length;
+    const filesToRead = Array.from(files).slice(0, remaining);
+
+    filesToRead.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result === "string") {
+          setSelectedPhotos((prev) => [...prev, reader.result as string]);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const handleRemovePhoto = (index: number) => {
+    setSelectedPhotos((prev) => prev.filter((_, i) => i !== index));
   };
 
   if (!open) return null;
@@ -189,38 +220,73 @@ export function CreatePostModal({ open, onClose }: CreatePostModalProps) {
           <div className="mb-2.5 text-[12px] font-extrabold tracking-[0.7px] text-[#94887B]">
             FOTOS
           </div>
-          <div className="flex gap-3">
-            <div className="flex h-[96px] w-[96px] flex-none items-center justify-center rounded-[14px] border border-[#ECE0D0] bg-[#F4ECE1] text-[#CBB89F]">
-              <svg
-                width="26"
-                height="26"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.7"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+          <div className="flex flex-wrap gap-3">
+            {selectedPhotos.map((photo, index) => (
+              <div
+                key={index}
+                className="relative h-[96px] w-[96px] flex-none overflow-hidden rounded-[14px] border border-[#ECE0D0]"
               >
-                <rect x="3" y="3" width="18" height="18" rx="2" />
-                <circle cx="9" cy="9" r="2" />
-                <path d="m21 15-3.6-3.6a2 2 0 0 0-2.8 0L6 21" />
-              </svg>
-            </div>
-            <div className="flex h-[96px] w-[96px] flex-none cursor-pointer flex-col items-center justify-center gap-1.5 rounded-[14px] border-[1.5px] border-dashed border-[#DBCDBA] bg-[#F4ECE1] text-[#B0A290]">
-              <svg
-                width="22"
-                height="22"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#C5503A"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M12 5v14M5 12h14" />
-              </svg>
-              <span className="text-[12px]">Agregar</span>
-            </div>
+                <img
+                  src={photo}
+                  alt={`Foto ${index + 1}`}
+                  className="h-full w-full object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={() => handleRemovePhoto(index)}
+                  className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-black/50 text-[14px] font-bold leading-none text-white"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+            {selectedPhotos.length < MAX_PHOTOS && (
+              <>
+                <div className="flex h-[96px] w-[96px] flex-none items-center justify-center rounded-[14px] border border-[#ECE0D0] bg-[#F4ECE1] text-[#CBB89F]">
+                  <svg
+                    width="26"
+                    height="26"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.7"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                    <circle cx="9" cy="9" r="2" />
+                    <path d="m21 15-3.6-3.6a2 2 0 0 0-2.8 0L6 21" />
+                  </svg>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex h-[96px] w-[96px] flex-none cursor-pointer flex-col items-center justify-center gap-1.5 rounded-[14px] border-[1.5px] border-dashed border-[#DBCDBA] bg-[#F4ECE1] text-[#B0A290]"
+                >
+                  <svg
+                    width="22"
+                    height="22"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#C5503A"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M12 5v14M5 12h14" />
+                  </svg>
+                  <span className="text-[12px]">Agregar</span>
+                </button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                  onChange={handleFileSelect}
+                />
+              </>
+            )}
           </div>
         </div>
       </div>
